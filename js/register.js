@@ -1,16 +1,3 @@
-// register.js 最顶部（第一行）
-import { createClient } from '@supabase/supabase-js'; // 若用模块化，需先导入
-// 直接初始化，不要延迟
-const supabaseUrl = 'https://neflfdfpzyjookonmleo.supabase.co';
-const supabaseKey = '你的Supabase anon key';
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-// 后续的注册函数等逻辑...
-async function register() {
-  // 原有注册逻辑
-}
-
-
 // Supabase配置
 const supabaseUrl = 'https://neflfdfpzyjookonmleo.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZmxmZGZwenlqb29rb25tbGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzQxMTUsImV4cCI6MjA4MDk1MDExNX0.z944F1VmJO9ro-1iDtB9HD_1NVThzz7mzqSX0IQqj68';
