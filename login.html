@@ -3,30 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 | 个人学习主页</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>用户登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-box {
+            background-color: #2d2d2d;
+            padding: 40px 30px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #ccc;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #999;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #3d3d3d;
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+        .input-group input:focus {
+            border-color: #4CAF50;
+        }
+        .remember {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #999;
+        }
+        .remember input {
+            margin-right: 8px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .login-btn:disabled {
+            background-color: #66bb6a;
+            cursor: not-allowed;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .register-link a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            color: #ccc;
+            background-color: #222;
+        }
+    </style>
 </head>
-<body class="login-page">
-    <div class="login-container">
-        <div class="login-card">
-            <h2>用户登录</h2>
-            <!-- 登录表单 -->
-            <div class="login-form">
-                <input type="email" id="login-email" placeholder="请输入邮箱" required>
-                <input type="password" id="login-pwd" placeholder="请输入密码" required>
-                <label class="remember-me">
-                    <input type="checkbox" id="remember-me" checked> 记住我（30天免登录）
-                </label>
-                <!-- 修改后 -->
-                <button id="do-login" class="login-btn" onclick="login()">登录</button>
-                <div class="register-link">
-                    还没有账号？<a href="register.html">立即注册</a>
-                </div>
-            </div>
+<body>
+    <div class="header">登录 | 个人学习主页</div>
+    <div class="login-box">
+        <h2>用户登录</h2>
+        <div class="input-group">
+            <label for="email">邮箱</label>
+            <input type="email" id="email" placeholder="请输入注册邮箱" value="2777136265@qq.com">
+        </div>
+        <div class="input-group">
+            <label for="password">密码</label>
+            <input type="password" id="password" placeholder="请输入密码" value="123456">
+        </div>
+        <div class="remember">
+            <input type="checkbox" id="remember" checked>
+            <label for="remember">记住我（30天免登录）</label>
+        </div>
+        <button class="login-btn" id="login-btn" onclick="handleLogin()">登录</button>
+        <div class="register-link">
+            还没有账号？<a href="register.html">立即注册</a>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/login.js"></script>
+    <script>
+        // ==================== Supabase核心配置（替换为你的！）====================
+        const SUPABASE_URL = 'https://neflfdfpzyjookonmleo.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZmxmZGZwenlqb29rb25tbGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzQxMTUsImV4cCI6MjA4MDk1MDExNX0.z944F1VmJO9ro-1iDtB9HD_1NVThzz7mzqSX0IQqj68';
+        
+        // ==================== 全局变量 ====================
+        let supabase = null;
+
+        // ==================== 初始化Supabase SDK ====================
+        (function loadSupabase() {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            
+            script.onload = function() {
+                try {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    console.log('Supabase初始化完成');
+                } catch (err) {
+                    alert('Supabase初始化失败：' + err.message);
+                }
+            };
+            
+            script.onerror = function() {
+                alert('Supabase SDK加载失败，请检查网络！');
+            };
+            
+            document.head.appendChild(script);
+        })();
+
+        // ==================== 等待Supabase初始化完成 ====================
+        function waitForSupabase() {
+            return new Promise((resolve, reject) => {
+                const check = setInterval(() => {
+                    if (supabase) {
+                        clearInterval(check);
+                        resolve(supabase);
+                    }
+                }, 100);
+                setTimeout(() => {
+                    clearInterval(check);
+                    reject(new Error('Supabase初始化超时（5秒）'));
+                }, 5000);
+            });
+        }
+
+        // ==================== 核心登录函数 ====================
+        async function handleLogin() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const loginBtn = document.getElementById('login-btn');
+
+            // 基础验证
+            if (!email || !password) {
+                alert('请输入邮箱和密码！');
+                return;
+            }
+
+            // 锁定按钮
+            loginBtn.disabled = true;
+            loginBtn.textContent = '登录中...';
+
+            try {
+                // 等待Supabase准备就绪
+                const sb = await waitForSupabase();
+
+                // 执行登录
+                const { data: { session }, error } = await sb.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw new Error(error.message);
+                if (session) {
+                    alert('登录成功！');
+                    // 替换为你的网站主页路径
+                    window.location.href = '/index.html';
+                }
+            } catch (err) {
+                alert('登录异常：' + err.message);
+            } finally {
+                // 恢复按钮
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登录';
+            }
+        }
+    </script>
 </body>
 </html>
