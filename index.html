@@ -6,7 +6,6 @@
     <title>我的个人学习主页 | 大学生</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <!-- 导航栏 -->
@@ -18,51 +17,26 @@
                 <a href="#materials">学习资料</a>
                 <a href="#contact">联系方式</a>
                 <a href="admin.html" id="admin-link" style="display: none;">管理员后台</a>
-                <!-- 登录按钮/用户信息 -->
-                <div id="auth-area">
-                    <button class="auth-btn" id="login-btn">登录</button>
-                    <button class="auth-btn" id="register-btn">注册</button>
+                <!-- 未登录显示登录入口 -->
+                <div id="auth-entrance" style="display: block;">
+                    <a href="login.html" class="auth-btn">登录/注册</a>
                 </div>
-                <!-- 登录后显示的用户信息（默认隐藏） -->
+                <!-- 登录后显示用户信息 -->
                 <div id="user-area" class="user-info" style="display: none;">
                     <span>👤 <span id="username">用户名</span></span>
                     <span>积分：<span id="points">0</span> ✨</span>
-                    <button class="sign-btn" id="sign-btn">今日签到</button>
+                    <button class="sign-btn" id="sign-btn" style="display: none;">今日签到</button>
                     <button class="auth-btn" id="logout-btn">退出</button>
                 </div>
             </nav>
         </div>
     </header>
 
-    <!-- 登录/注册弹窗（移除找回密码+验证码） -->
-    <div class="modal" id="auth-modal">
-        <div class="modal-content">
-            <span class="close-btn" id="close-modal">&times;</span>
-            <div class="modal-tabs">
-                <button class="tab-btn active" data-tab="login">登录</button>
-                <button class="tab-btn" data-tab="register">注册</button>
-            </div>
-            <!-- 登录表单 -->
-            <div class="modal-form active" id="login-form">
-                <input type="email" id="login-email" placeholder="请输入邮箱">
-                <input type="password" id="login-pwd" placeholder="请输入密码">
-                <button id="do-login">登录</button>
-            </div>
-            <!-- 注册表单（移除验证码） -->
-            <div class="modal-form" id="register-form">
-                <input type="text" id="register-name" placeholder="请输入用户名">
-                <input type="email" id="register-email" placeholder="请输入邮箱">
-                <input type="password" id="register-pwd" placeholder="请输入密码（至少6位）">
-                <button id="do-register">注册</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 主体内容（保留原有） -->
+    <!-- 主体内容 -->
     <div class="container" id="main-container">
-        <!-- 个人介绍 -->
+        <!-- 个人介绍（头像动态切换） -->
         <section class="profile" id="profile">
-            <img src="http://q1.qlogo.cn/g?b=qq&nk=2777136265&s=100" alt="个人头像" class="profile-img">
+            <img src="http://q1.qlogo.cn/g?b=qq&nk=2777136265&s=100" alt="个人头像" class="profile-img" id="user-avatar">
             <div class="profile-info">
                 <h2>飞翔的羊羊 | 生态学专业</h2>
                 <p>👋 大家好！我是一名大二学生，热爱学习和分享，希望通过这个主页和大家交流学习心得，共享优质学习资源～</p>
@@ -134,7 +108,7 @@
         <p style="margin-top: 0.5rem; font-size: 0.9rem;">愿我们都在学习的路上不断进步～</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/main.js"></script>
-    <script src="js/auth.js"></script>
 </body>
 </html>
