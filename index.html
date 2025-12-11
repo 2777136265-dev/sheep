@@ -34,14 +34,13 @@
         </div>
     </header>
 
-    <!-- 登录/注册/找回密码弹窗 -->
+    <!-- 登录/注册弹窗（移除找回密码+验证码） -->
     <div class="modal" id="auth-modal">
         <div class="modal-content">
             <span class="close-btn" id="close-modal">&times;</span>
             <div class="modal-tabs">
                 <button class="tab-btn active" data-tab="login">登录</button>
                 <button class="tab-btn" data-tab="register">注册</button>
-                <button class="tab-btn" data-tab="find-pwd">找回密码</button>
             </div>
             <!-- 登录表单 -->
             <div class="modal-form active" id="login-form">
@@ -49,27 +48,17 @@
                 <input type="password" id="login-pwd" placeholder="请输入密码">
                 <button id="do-login">登录</button>
             </div>
-            <!-- 注册表单（含验证码） -->
+            <!-- 注册表单（移除验证码） -->
             <div class="modal-form" id="register-form">
                 <input type="text" id="register-name" placeholder="请输入用户名">
                 <input type="email" id="register-email" placeholder="请输入邮箱">
                 <input type="password" id="register-pwd" placeholder="请输入密码（至少6位）">
-                <input type="text" id="register-code" placeholder="请输入邮箱验证码">
-                <button class="send-code-btn" id="send-register-code">发送验证码</button>
                 <button id="do-register">注册</button>
-            </div>
-            <!-- 找回密码表单 -->
-            <div class="modal-form" id="find-pwd-form">
-                <input type="email" id="find-email" placeholder="请输入注册邮箱">
-                <input type="text" id="find-code" placeholder="请输入邮箱验证码">
-                <input type="password" id="new-pwd" placeholder="请输入新密码（至少6位）">
-                <button class="send-code-btn" id="send-find-code">发送验证码</button>
-                <button id="do-reset-pwd">重置密码</button>
             </div>
         </div>
     </div>
 
-    <!-- 主体内容 -->
+    <!-- 主体内容（保留原有） -->
     <div class="container" id="main-container">
         <!-- 个人介绍 -->
         <section class="profile" id="profile">
@@ -92,25 +81,21 @@
         <section class="materials" id="materials">
             <h2>📖 学习资料分享</h2>
             <div class="material-list">
-                <!-- 资料卡片1 -->
                 <div class="material-card">
                     <h3>学习资料分享</h3>
                     <p>包含生物化学、动物学等核心知识点，附刷题思路和例题解析</p>
                     <a href="https://pan.baidu.com/s/1739wCLzmLSAdvMsW3vzdPw?pwd=5xq9" target="_blank">下载PDF</a>
                 </div>
-                <!-- 资料卡片2 -->
                 <div class="material-card">
                     <h3>Python入门到实战教程</h3>
                     <p>适合零基础，涵盖基础语法、爬虫、数据分析、小项目实战（附源码）</p>
                     <a href="#" target="_blank">查看教程</a>
                 </div>
-                <!-- 资料卡片3 -->
                 <div class="material-card">
                     <h3>前端面试高频考点整理</h3>
                     <p>HTML/CSS/JS核心考点、浏览器原理、框架面试题，附参考答案</p>
                     <a href="#" target="_blank">获取资料</a>
                 </div>
-                <!-- 资料卡片4 -->
                 <div class="material-card">
                     <h3>蓝桥杯历年真题及解析</h3>
                     <p>近5年蓝桥杯省赛/国赛真题，包含C++/Python两种解法，附评分标准</p>
