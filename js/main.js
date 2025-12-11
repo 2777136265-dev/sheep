@@ -16,7 +16,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('logout-btn')?.addEventListener('click', logout);
     
     // 绑定签到按钮事件
-    document.getElementById('sign-btn')?.addEventListener('click', signIn);
 });
 
 // 检查登录状态
