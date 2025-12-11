@@ -360,9 +360,9 @@
         // ==================== Supabase核心配置（替换为你的！）====================
         const SUPABASE_URL = 'https://neflfdfpzyjookonmleo.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZmxmZGZwenlqb29rb25tbGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzQxMTUsImV4cCI6MjA4MDk1MDExNX0.z944F1VmJO9ro-1iDtB9HD_1NVThzz7mzqSX0IQqj68';
-        
-        // 初始化Supabase客户端
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 修复：新版supabase初始化语法（关键！）
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // 页面加载后执行
         window.onload = async function() {
@@ -374,7 +374,9 @@
         // ==================== 检查登录状态 ====================
         async function checkLoginStatus() {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError) throw new Error(sessionError.message);
+                
                 const authEntrance = document.getElementById('auth-entrance');
                 const userArea = document.getElementById('user-area');
                 const signBtn = document.getElementById('sign-btn');
@@ -388,7 +390,7 @@
                     // 获取用户信息并渲染
                     await renderUserInfo(session.user.id);
                     // 检查今日是否已签到
-                    await checkSignStatus();
+                    await checkSignStatus(session.user.id);
                 } else {
                     // 未登录：显示登录入口，隐藏用户区域
                     authEntrance.style.display = 'block';
@@ -409,7 +411,24 @@
                     .eq('id', userId)
                     .single();
 
-                if (error) throw new Error('未查询到用户信息');
+                if (error) {
+                    // 若用户信息不存在，自动创建（首次登录/注册漏写）
+                    await supabase.from('users').insert([{
+                        id: userId,
+                        username: '默认用户名',
+                        email: '',
+                        points: 0
+                    }]);
+                    // 重新查询
+                    const { data: newProfile } = await supabase
+                        .from('users')
+                        .select('username, points')
+                        .eq('id', userId)
+                        .single();
+                    document.getElementById('username').textContent = newProfile.username;
+                    document.getElementById('points').textContent = newProfile.points || 0;
+                    return;
+                }
 
                 // 更新页面上的用户名和积分
                 document.getElementById('username').textContent = userProfile.username;
@@ -417,25 +436,26 @@
             } catch (err) {
                 console.error('渲染用户信息失败：', err);
                 document.getElementById('username').textContent = '未知用户';
+                document.getElementById('points').textContent = 0;
             }
         }
 
-        // ==================== 检查今日签到状态 ====================
-        async function checkSignStatus() {
+        // ==================== 检查今日签到状态（修复：传userId+捕获错误）====================
+        async function checkSignStatus(userId) {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) return;
+                if (!userId) return;
 
                 const today = new Date().toISOString().split('T')[0]; // 今日日期（YYYY-MM-DD）
                 const signBtn = document.getElementById('sign-btn');
 
-                // 查询用户今日签到记录（需先创建sign_records表）
-                const { data: signRecord } = await supabase
+                // 查询用户今日签到记录（修复：增加catch）
+                const { data: signRecord, error } = await supabase
                     .from('sign_records')
                     .select('id')
-                    .eq('user_id', session.user.id)
+                    .eq('user_id', userId)
                     .eq('sign_date', today)
-                    .single();
+                    .single()
+                    .catch(() => ({ data: null, error: null }));
 
                 if (signRecord) {
                     // 已签到：禁用签到按钮
@@ -471,104 +491,102 @@
             };
         }
 
-        // ==================== 绑定签到事件 ====================
+        // ==================== 绑定签到事件（修复核心：移除错误的RLS旁路+完善逻辑）====================
         async function bindSignEvent() {
-    const signBtn = document.getElementById('sign-btn');
-    signBtn.onclick = async function() {
-        try {
-            // 1. 检查登录状态
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError) throw new Error('登录状态获取失败：' + sessionError.message);
-            if (!session || !session.user) {
-                alert('请先登录！');
-                window.location.href = 'login.html';
-                return;
-            }
-            const userId = session.user.id;
-            console.log('当前用户ID：', userId); // 控制台打印ID，方便排查
+            const signBtn = document.getElementById('sign-btn');
+            signBtn.onclick = async function() {
+                try {
+                    // 1. 检查登录状态
+                    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                    if (sessionError) throw new Error('登录状态获取失败：' + sessionError.message);
+                    if (!session || !session.user) {
+                        alert('请先登录！');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    const userId = session.user.id;
+                    console.log('当前用户ID：', userId); // 控制台打印ID，方便排查
 
-            // 2. 禁用按钮防止重复点击
-            signBtn.disabled = true;
-            signBtn.textContent = '签到中...';
+                    // 2. 禁用按钮防止重复点击
+                    signBtn.disabled = true;
+                    signBtn.textContent = '签到中...';
 
-            // 3. 检查今日是否已签到（避免重复签到）
-            const today = new Date().toISOString().split('T')[0];
-            const { data: signRecord } = await supabase
-                .from('sign_records')
-                .select('id')
-                .eq('user_id', userId)
-                .eq('sign_date', today)
-                .single()
-                .catch(() => null); // 未签到时忽略报错
+                    // 3. 检查今日是否已签到（避免重复签到）
+                    const today = new Date().toISOString().split('T')[0];
+                    const { data: signRecord } = await supabase
+                        .from('sign_records')
+                        .select('id')
+                        .eq('user_id', userId)
+                        .eq('sign_date', today)
+                        .single()
+                        .catch(() => null); // 未签到时忽略报错
 
-            if (signRecord) {
-                alert('今日已签到！无需重复签到');
-                signBtn.textContent = '今日已签到';
-                signBtn.classList.add('disabled');
-                return;
-            }
+                    if (signRecord) {
+                        alert('今日已签到！无需重复签到');
+                        signBtn.textContent = '今日已签到';
+                        signBtn.classList.add('disabled');
+                        return;
+                    }
 
-            // 4. 获取当前积分（兼容无记录的情况）
-            let currentPoints = 0;
-            const { data: userProfile, error: profileError } = await supabase
-                .from('users')
-                .select('points')
-                .eq('id', userId)
-                .single()
-                .catch(err => {
-                    console.log('用户积分查询失败（首次签到）：', err);
-                    return { data: null };
-                });
+                    // 4. 获取当前积分（兼容无记录的情况）
+                    let currentPoints = 0;
+                    const { data: userProfile, error: profileError } = await supabase
+                        .from('users')
+                        .select('points')
+                        .eq('id', userId)
+                        .single()
+                        .catch(err => {
+                            console.log('用户积分查询失败（首次签到）：', err);
+                            return { data: null };
+                        });
 
-            if (userProfile) {
-                currentPoints = userProfile.points ?? 0;
-            }
-            const addPoints = 10;
-            const newPoints = currentPoints + addPoints;
-            console.log('积分更新：', currentPoints, '→', newPoints); // 控制台打印积分
+                    if (userProfile) {
+                        currentPoints = userProfile.points ?? 0;
+                    }
+                    const addPoints = 10;
+                    const newPoints = currentPoints + addPoints;
+                    console.log('积分更新：', currentPoints, '→', newPoints); // 控制台打印积分
 
-            // 5. 更新积分（强制开启RLS旁路，测试用）
-            const { error: updateError } = await supabase
-                .from('users')
-                .update({ points: newPoints })
-                .eq('id', userId)
-                // 临时添加RLS旁路（测试完成后删除）
-                .setAuth({ bypassRLS: true });
+                    // 5. 修复：移除错误的RLS旁路，改用临时关闭RLS（测试用）
+                    const { error: updateError } = await supabase
+                        .from('users')
+                        .update({ points: newPoints })
+                        .eq('id', userId);
 
-            if (updateError) {
-                throw new Error('积分更新失败：' + updateError.message + '（检查RLS策略/用户ID是否匹配）');
-            }
+                    if (updateError) {
+                        throw new Error('积分更新失败：' + updateError.message + '\n请检查：1.users表RLS是否关闭 2.用户ID是否匹配 3.points字段是否存在');
+                    }
 
-            // 6. 记录签到记录
-            const { error: signError } = await supabase
-                .from('sign_records')
-                .insert([{
-                    user_id: userId,
-                    sign_date: today,
-                    points: addPoints
-                }]);
+                    // 6. 记录签到记录
+                    const { error: signError } = await supabase
+                        .from('sign_records')
+                        .insert([{
+                            user_id: userId,
+                            sign_date: today,
+                            points: addPoints
+                        }]);
 
-            if (signError) {
-                console.warn('签到记录保存失败（积分已更新）：', signError);
-                // 积分更新成功，仅记录失败不影响用户
-            }
+                    if (signError) {
+                        console.warn('签到记录保存失败（积分已更新）：', signError);
+                        alert('积分更新成功，但签到记录保存失败（不影响积分）');
+                    }
 
-            // 7. 成功提示+更新页面
-            document.getElementById('points').textContent = newPoints;
-            signBtn.textContent = '今日已签到';
-            signBtn.classList.add('disabled');
-            alert(`签到成功！获得${addPoints}积分，当前积分：${newPoints}`);
+                    // 7. 成功提示+更新页面
+                    document.getElementById('points').textContent = newPoints;
+                    signBtn.textContent = '今日已签到';
+                    signBtn.classList.add('disabled');
+                    alert(`签到成功！获得${addPoints}积分，当前积分：${newPoints}`);
 
-        } catch (err) {
-            // 详细错误提示
-            alert(err.message);
-            console.error('签到完整报错：', err);
-            // 恢复按钮状态
-            signBtn.textContent = '今日签到';
-            signBtn.disabled = false;
+                } catch (err) {
+                    // 详细错误提示
+                    alert(err.message);
+                    console.error('签到完整报错：', err);
+                    // 恢复按钮状态
+                    signBtn.textContent = '今日签到';
+                    signBtn.disabled = false;
+                }
+            };
         }
-    };
-}
     </script>
 </body>
 </html>
