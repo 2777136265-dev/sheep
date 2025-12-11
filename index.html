@@ -31,7 +31,7 @@
             margin: 0 auto;
             padding: 20px;
         }
-        /* 导航栏样式 */
+        /* 导航栏样式 - 核心调整：登录入口移到右上角 */
         header {
             background-color: #2c3e50;
             color: white;
@@ -42,7 +42,7 @@
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* 两端对齐，实现登录入口右对齐 */
             align-items: center;
             padding: 0 20px;
         }
@@ -50,19 +50,26 @@
             font-size: 1.5rem;
             font-weight: bold;
         }
-        nav {
+        /* 导航链接区域 */
+        .nav-links {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        nav a {
+        .nav-links a {
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 4px;
             transition: background-color 0.3s;
         }
-        nav a:hover {
+        .nav-links a:hover {
             background-color: #34495e;
+        }
+        /* 登录/用户信息区域（右上角） */
+        .auth-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         .auth-btn {
             background-color: #3498db;
@@ -177,7 +184,7 @@
         .material-card a:hover {
             background-color: #2980b9;
         }
-        /* 联系方式样式 */
+        /* 联系方式样式 - 修正布局和标签错误 */
         .contact {
             background-color: white;
             padding: 30px;
@@ -206,7 +213,7 @@
         .contact-item i {
             color: #3498db;
             font-size: 1.2rem;
-            width: 20px;
+            width: 24px; /* 固定图标宽度，对齐更整齐 */
             text-align: center;
         }
         /* 页脚样式 */
@@ -220,7 +227,7 @@
         footer p {
             font-size: 1rem;
         }
-        /* 响应式样式 */
+        /* 响应式样式 - 适配手机端 */
         @media (max-width: 768px) {
             .profile {
                 flex-direction: column;
@@ -230,7 +237,7 @@
                 flex-direction: column;
                 gap: 15px;
             }
-            nav {
+            .nav-links, .auth-area {
                 flex-wrap: wrap;
                 justify-content: center;
             }
@@ -242,15 +249,21 @@
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- 导航栏 -->
+    <!-- 导航栏 - 重构布局，登录入口移到右上角 -->
     <header>
         <div class="nav-container">
             <div class="logo">我的学习主页</div>
-            <nav>
+            
+            <!-- 导航链接区域 -->
+            <div class="nav-links">
                 <a href="#profile">个人介绍</a>
                 <a href="#materials">学习资料</a>
                 <a href="#contact">联系方式</a>
                 <a href="admin.html" id="admin-link" style="display: none;">管理员后台</a>
+            </div>
+            
+            <!-- 登录/用户信息区域（右上角） -->
+            <div class="auth-area">
                 <!-- 未登录显示登录入口 -->
                 <div id="auth-entrance" style="display: block;">
                     <a href="login.html" class="auth-btn">登录/注册</a>
@@ -262,13 +275,13 @@
                     <button class="sign-btn" id="sign-btn">今日签到</button>
                     <button class="auth-btn" id="logout-btn">退出</button>
                 </div>
-            </nav>
+            </div>
         </div>
     </header>
 
     <!-- 主体内容 -->
     <div class="container" id="main-container">
-        <!-- 个人介绍（头像动态切换） -->
+        <!-- 个人介绍 -->
         <section class="profile" id="profile">
             <img src="http://q1.qlogo.cn/g?b=qq&nk=2777136265&s=100" alt="个人头像" class="profile-img" id="user-avatar">
             <div class="profile-info">
@@ -312,24 +325,24 @@
             </div>
         </section>
 
-        <!-- 联系方式 -->
+        <!-- 联系方式 - 修正HTML标签错误 -->
         <section class="contact" id="contact">
             <h2>📞 联系方式</h2>
             <div class="contact-info">
                 <div class="contact-item">
-                    <<i class="fas fa-envelope"></</i>
+                    <i class="fas fa-envelope"></i>
                     <span>邮箱：2777136265@qq.com</span>
                 </div>
                 <div class="contact-item">
-                    <<i class="fas fa-wechat"></</i>
+                    <i class="fas fa-wechat"></i>
                     <span>微信：fly_sheep1（备注：学习交流）</span>
                 </div>
                 <div class="contact-item">
-                    <<i class="fas fa-github"></</i>
+                    <i class="fas fa-github"></i>
                     <span>GitHub：github.com/你的用户名</span>
                 </div>
                 <div class="contact-item">
-                    <<i class="fas fa-qq"></</i>
+                    <i class="fas fa-qq"></i>
                     <span>QQ：2777136265</span>
                 </div>
             </div>
@@ -416,8 +429,7 @@
                 const today = new Date().toISOString().split('T')[0]; // 今日日期（YYYY-MM-DD）
                 const signBtn = document.getElementById('sign-btn');
 
-                // 查询用户今日签到记录（需先创建sign_records表，若没有则注释此段，直接显示签到按钮）
-                // 若无需记录签到历史，可删除此段，仅通过积分判断（或注释）
+                // 查询用户今日签到记录（需先创建sign_records表）
                 const { data: signRecord } = await supabase
                     .from('sign_records')
                     .select('id')
@@ -494,7 +506,7 @@
 
                     if (updateError) throw new Error('积分更新失败');
 
-                    // 3. 记录签到历史（可选，需先创建sign_records表）
+                    // 3. 记录签到历史（可选）
                     const today = new Date().toISOString().split('T')[0];
                     await supabase.from('sign_records').insert([{
                         user_id: session.user.id,
