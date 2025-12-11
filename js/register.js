@@ -1,103 +1,87 @@
-// register.js 最顶部（第一行）
-import { createClient } from '@supabase/supabase-js'; // 若用模块化，需先导入
-// 直接初始化，不要延迟
-const supabaseUrl = 'https://neflfdfpzyjookonmleo.supabase.co';
-const supabaseKey = '你的Supabase anon key';
-const supabase = createClient(supabaseUrl, supabaseKey);
+// 初始化Supabase
+const SUPABASE_URL = 'https://neflfdfpzyjookonmleo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZmxmZGZwenlqb29rb25tbGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzQxMTUsImV4cCI6MjA4MDk1MDExNX0.z944F1VmJO9ro-1iDtB9HD_1NVThzz7mzqSX0IQqj68';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 后续的注册函数等逻辑...
-async function register() {
-  // 原有注册逻辑
-}
+// 注册按钮点击事件
+document.getElementById('register-btn').addEventListener('click', async function() {
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-
-// Supabase配置
-const supabaseUrl = 'https://neflfdfpzyjookonmleo.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZmxmZGZwenlqb29rb25tbGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzQxMTUsImV4cCI6MjA4MDk1MDExNX0.z944F1VmJO9ro-1iDtB9HD_1NVThzz7mzqSX0IQqj68';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-// 页面加载完成后绑定事件
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('do-register').addEventListener('click', register);
-    
-    // 回车注册
-    document.querySelectorAll('#register-name, #register-email, #register-pwd').forEach(input => {
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') register();
-        });
-    });
-});
-
-// 注册函数
-async function register() {
-    const username = document.getElementById('register-name').value.trim();
-    const email = document.getElementById('register-email').value.trim();
-    const password = document.getElementById('register-pwd').value.trim();
-
-    // 基础验证
+    // 1. 基础校验
     if (!username || !email || !password) {
-        alert('请填写所有字段！');
+        alert('请填写完整信息！');
         return;
     }
-
     if (password.length < 6) {
-        alert('密码至少6位！');
-        return;
-    }
-
-    // 邮箱格式验证
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        alert('请输入有效的邮箱！');
+        alert('密码长度不能少于6位！');
         return;
     }
 
     try {
-        // 检查邮箱是否已注册
-        const { data: existingUser } = await supabase
+        // 2. 前置校验：检查用户名/邮箱是否已存在
+        // 检查邮箱重复
+        const { data: emailCheck } = await supabase
             .from('users')
-            .select('*')
+            .select('id')
             .eq('email', email)
             .single();
-
-        if (existingUser) {
-            alert('该邮箱已注册！');
+        if (emailCheck) {
+            alert('该邮箱已注册！请直接登录');
             return;
         }
 
-        // 注册账号
-        const { data: { user }, error: authError } = await supabase.auth.signUp({
-            email,
-            password
+        // 检查用户名重复
+        const { data: usernameCheck } = await supabase
+            .from('users')
+            .select('id')
+            .eq('username', username)
+            .single();
+        if (usernameCheck) {
+            alert('该用户名已被占用！请更换');
+            return;
+        }
+
+        // 3. 执行Supabase注册
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: email,
+            password: password
         });
 
         if (authError) {
-            alert('注册失败：' + authError.message);
+            // 捕获Supabase内置重复报错（兜底）
+            if (authError.message.includes('duplicate key') || authError.message.includes('already exists')) {
+                alert('邮箱已注册！请直接登录');
+            } else {
+                alert('注册失败：' + authError.message);
+            }
             return;
         }
 
-        // 保存用户信息
+        // 4. 写入users表（关联Auth用户ID）
         const { error: userError } = await supabase
             .from('users')
             .insert([{
-                id: user.id,
-                username,
-                email,
-                points: 0,
-                status: 1,
-                created_at: new Date()
+                id: authData.user.id,
+                username: username,
+                email: email,
+                points: 0, // 初始积分
+                status: 1
             }]);
 
         if (userError) {
             alert('用户信息保存失败：' + userError.message);
-            // 回滚删除账号
-            await supabase.auth.admin.deleteUser(user.id);
             return;
         }
 
-        alert('注册成功！请登录～');
-        window.location.href = 'login.html';
+        // 5. 注册成功提示
+        alert('注册成功！请登录');
+        window.location.href = 'login.html'; // 跳转到登录页
+
     } catch (err) {
-        alert('注册异常：' + err.message);
+        // 非预期错误提示
+        alert('注册异常：' + (err.message || '请稍后重试'));
+        console.error('注册报错：', err);
     }
-}
+});
