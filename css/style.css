@@ -1,0 +1,448 @@
+/* 基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft YaHei", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+body {
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+/* 导航栏 */
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 5%;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 1.5rem;
+    transition: color 0.3s;
+}
+nav a:hover {
+    color: #3498db;
+}
+/* 登录/用户信息样式 */
+.auth-btn {
+    padding: 0.5rem 1rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 1rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.auth-btn:hover {
+    background-color: #2980b9;
+}
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.user-info span {
+    color: white;
+}
+.sign-btn {
+    padding: 0.5rem 1rem;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.sign-btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+/* 登录/注册/找回密码弹窗 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    overflow-y: auto;
+}
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+.modal-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.modal-tabs button {
+    flex: 1;
+    padding: 0.8rem;
+    border: none;
+    background: #eaeaea;
+    border-radius: 8px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.modal-tabs button.active {
+    background: #3498db;
+    color: white;
+}
+.modal-form {
+    display: none;
+}
+.modal-form.active {
+    display: block;
+}
+.modal-form input {
+    width: 100%;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    outline: none;
+}
+.modal-form input:focus {
+    border-color: #3498db;
+}
+.modal-form button {
+    width: 100%;
+    padding: 1rem;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 1rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.send-code-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.close-btn {
+    float: right;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    -webkit-user-select: none;
+    user-select: none;
+}
+/* 管理员后台样式 */
+.admin-panel {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 5%;
+    display: none;
+}
+.admin-panel.active {
+    display: block;
+}
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.admin-settings {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eaeaea;
+}
+.setting-item:last-child {
+    border-bottom: none;
+}
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #3498db;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.user-table th, .user-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eaeaea;
+}
+.user-table th {
+    background-color: #2c3e50;
+    color: white;
+}
+.user-table button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.disable-btn {
+    background-color: #e74c3c;
+    color: white;
+}
+.delete-btn {
+    background-color: #95a5a6;
+    color: white;
+}
+/* 主体内容 */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 5%;
+}
+.profile {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+}
+.profile-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #eaeaea;
+}
+.profile-info {
+    flex: 1;
+    min-width: 300px;
+}
+.profile-info h2 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+.profile-info p {
+    margin-bottom: 0.8rem;
+    color: #666;
+}
+.tag {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.materials {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+.materials h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+}
+.material-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.material-card {
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    padding: 1.2rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.material-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.material-card h3 {
+    color: #3498db;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+}
+.material-card p {
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+.material-card a {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    background-color: #2c3e50;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+.material-card a:hover {
+    background-color: #3498db;
+}
+.contact {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.contact h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+}
+.contact-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.1rem;
+}
+.contact-item i {
+    color: #3498db;
+    font-size: 1.5rem;
+}
+footer {
+    text-align: center;
+    padding: 2rem;
+    background-color: #2c3e50;
+    color: white;
+    margin-top: 2rem;
+}
+/* 适配移动端 */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    nav {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    nav a {
+        margin: 0.2rem 0.5rem;
+    }
+    #auth-area {
+        margin-top: 0.5rem;
+    }
+    .user-info {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .profile {
+        flex-direction: column;
+        text-align: center;
+    }
+    .contact-info {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .user-table th, .user-table td {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+}

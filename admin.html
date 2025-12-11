@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员后台 | 个人学习主页</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <div class="logo">管理员后台</div>
+            <nav>
+                <a href="../index.html">返回主页</a>
+                <div id="user-area" class="user-info">
+                    <span>👤 管理员</span>
+                    <button class="auth-btn" id="logout-btn">退出登录</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="admin-panel" id="admin-panel">
+        <div class="admin-header">
+            <h2>🔧 系统管理中心</h2>
+        </div>
+        
+        <!-- 系统设置区域 -->
+        <div class="admin-settings">
+            <h3>系统设置</h3>
+            <div class="setting-item">
+                <span>启用邮箱验证码</span>
+                <label class="switch">
+                    <input type="checkbox" id="email-verification-switch">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <!-- 用户管理区域 -->
+        <div>
+            <h3>用户管理</h3>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>用户ID</th>
+                        <th>用户名</th>
+                        <th>邮箱</th>
+                        <th>积分</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    <!-- 用户列表将通过JS动态加载 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 管理员后台 | 个人学习主页</p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

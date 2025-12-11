@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的个人学习主页 | 大学生</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <div class="nav-container">
+            <div class="logo">我的学习主页</div>
+            <nav>
+                <a href="#profile">个人介绍</a>
+                <a href="#materials">学习资料</a>
+                <a href="#contact">联系方式</a>
+                <a href="admin.html" id="admin-link" style="display: none;">管理员后台</a>
+                <!-- 登录按钮/用户信息 -->
+                <div id="auth-area">
+                    <button class="auth-btn" id="login-btn">登录</button>
+                    <button class="auth-btn" id="register-btn">注册</button>
+                </div>
+                <!-- 登录后显示的用户信息（默认隐藏） -->
+                <div id="user-area" class="user-info" style="display: none;">
+                    <span>👤 <span id="username">用户名</span></span>
+                    <span>积分：<span id="points">0</span> ✨</span>
+                    <button class="sign-btn" id="sign-btn">今日签到</button>
+                    <button class="auth-btn" id="logout-btn">退出</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 登录/注册/找回密码弹窗 -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal">&times;</span>
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="login">登录</button>
+                <button class="tab-btn" data-tab="register">注册</button>
+                <button class="tab-btn" data-tab="find-pwd">找回密码</button>
+            </div>
+            <!-- 登录表单 -->
+            <div class="modal-form active" id="login-form">
+                <input type="email" id="login-email" placeholder="请输入邮箱">
+                <input type="password" id="login-pwd" placeholder="请输入密码">
+                <button id="do-login">登录</button>
+            </div>
+            <!-- 注册表单（含验证码） -->
+            <div class="modal-form" id="register-form">
+                <input type="text" id="register-name" placeholder="请输入用户名">
+                <input type="email" id="register-email" placeholder="请输入邮箱">
+                <input type="password" id="register-pwd" placeholder="请输入密码（至少6位）">
+                <input type="text" id="register-code" placeholder="请输入邮箱验证码">
+                <button class="send-code-btn" id="send-register-code">发送验证码</button>
+                <button id="do-register">注册</button>
+            </div>
+            <!-- 找回密码表单 -->
+            <div class="modal-form" id="find-pwd-form">
+                <input type="email" id="find-email" placeholder="请输入注册邮箱">
+                <input type="text" id="find-code" placeholder="请输入邮箱验证码">
+                <input type="password" id="new-pwd" placeholder="请输入新密码（至少6位）">
+                <button class="send-code-btn" id="send-find-code">发送验证码</button>
+                <button id="do-reset-pwd">重置密码</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主体内容 -->
+    <div class="container" id="main-container">
+        <!-- 个人介绍 -->
+        <section class="profile" id="profile">
+            <img src="http://q1.qlogo.cn/g?b=qq&nk=2777136265&s=100" alt="个人头像" class="profile-img">
+            <div class="profile-info">
+                <h2>飞翔的羊羊 | 生态学专业</h2>
+                <p>👋 大家好！我是一名大二学生，热爱学习和分享，希望通过这个主页和大家交流学习心得，共享优质学习资源～</p>
+                <p>📚 擅长领域：无</p>
+                <p>🎯 近期目标：无</p>
+                <div>
+                    <span class="tag">生态专业</span>
+                    <span class="tag">学习分享</span>
+                    <span class="tag">前端开发</span>
+                    <span class="tag">算法刷题</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 学习资料分享 -->
+        <section class="materials" id="materials">
+            <h2>📖 学习资料分享</h2>
+            <div class="material-list">
+                <!-- 资料卡片1 -->
+                <div class="material-card">
+                    <h3>学习资料分享</h3>
+                    <p>包含生物化学、动物学等核心知识点，附刷题思路和例题解析</p>
+                    <a href="https://pan.baidu.com/s/1739wCLzmLSAdvMsW3vzdPw?pwd=5xq9" target="_blank">下载PDF</a>
+                </div>
+                <!-- 资料卡片2 -->
+                <div class="material-card">
+                    <h3>Python入门到实战教程</h3>
+                    <p>适合零基础，涵盖基础语法、爬虫、数据分析、小项目实战（附源码）</p>
+                    <a href="#" target="_blank">查看教程</a>
+                </div>
+                <!-- 资料卡片3 -->
+                <div class="material-card">
+                    <h3>前端面试高频考点整理</h3>
+                    <p>HTML/CSS/JS核心考点、浏览器原理、框架面试题，附参考答案</p>
+                    <a href="#" target="_blank">获取资料</a>
+                </div>
+                <!-- 资料卡片4 -->
+                <div class="material-card">
+                    <h3>蓝桥杯历年真题及解析</h3>
+                    <p>近5年蓝桥杯省赛/国赛真题，包含C++/Python两种解法，附评分标准</p>
+                    <a href="#" target="_blank">下载真题</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 联系方式 -->
+        <section class="contact" id="contact">
+            <h2>📞 联系方式</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>邮箱：2777136265@qq.com</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-wechat"></i>
+                    <span>微信：fly_sheep1（备注：学习交流）</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-github"></i>
+                    <span>GitHub：github.com/你的用户名</span>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-qq"></i>
+                    <span>QQ：2777136265</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <p>© 2025 我的个人学习主页 | 大学生学习分享平台</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">愿我们都在学习的路上不断进步～</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
