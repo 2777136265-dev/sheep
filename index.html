@@ -504,7 +504,10 @@
                         .update({ points: newPoints })
                         .eq('id', session.user.id);
 
-                    if (updateError) throw new Error('积分更新失败');
+                    if (updateError) {
+                     console.error('积分更新错误详情：', updateError);
+                     throw new Error(`积分更新失败：${updateError.message}`);
+                    }
 
                     // 3. 记录签到历史（可选）
                     const today = new Date().toISOString().split('T')[0];
