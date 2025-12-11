@@ -293,3 +293,37 @@ footer {
         justify-content: center;
     }
 }
+
+/* 超小屏手机适配（320px及以下） */
+@media (max-width: 320px) {
+    .logo {
+        font-size: 16px;
+        margin-right: 10px;
+    }
+
+    nav a {
+        font-size: 12px;
+        padding: 5px 5px;
+    }
+
+    #auth-entrance .auth-btn {
+        padding: 5px 8px;
+        font-size: 12px;
+    }
+}
+
+/* 大屏手机/平板适配（768px及以上） */
+@media (min-width: 768px) {
+    .nav-container {
+        padding: 15px 20px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    nav a {
+        font-size: 16px;
+        gap: 20px;
+    }
+}
