@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 | 个人学习主页</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <h2>用户注册</h2>
+            <div class="login-form">
+                <input type="text" id="register-name" placeholder="请输入用户名" required>
+                <input type="email" id="register-email" placeholder="请输入邮箱" required>
+                <input type="password" id="register-pwd" placeholder="请输入密码（至少6位）" required>
+                <button id="do-register" class="login-btn">注册</button>
+                <div class="register-link">
+                    已有账号？<a href="login.html">立即登录</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/register.js"></script>
+</body>
+</html>
