@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留言 - 飞翔的羊羊</title>
+    <meta name="keywords" content="留言板,互动交流,飞翔的羊羊" />
+    <meta name="description" content="飞翔的羊羊的留言板，欢迎访问留言" />
+    <meta name="generator" content="Typecho 1.2.1" />
+    <meta name="template" content="Joe-master" />
+    <link rel="pingback" href="action/xmlrpc" />
+    <link rel="EditURI" type="application/rsd+xml" title="RSD" href="action/xmlrpc?rsd" />
+    <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="action/xmlrpc?wlw" />
+    <link rel="alternate" type="application/rss+xml" title="留言 &raquo; 飞翔的羊羊 &raquo; RSS 2.0" href="feed/464.html" />
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="https://cdn.tailwindcss.com">
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Tailwind 配置
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        light: '#f8fafc',
+                        dark: '#1e293b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .comment-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .hover-lift {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .hover-lift:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+    <!-- 导航栏：已替换名称，新增主页入口高亮逻辑 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-primary">飞翔的羊羊</h1>
+            <nav class="flex items-center gap-6">
+                <ul class="flex space-x-6">
+                    <li><a href="/" class="hover:text-primary transition-colors">首页</a></li>
+                    <li><a href="/message-board.html" class="text-primary border-b-2 border-primary pb-1">留言板</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">文章</a></li>
+                    <li><a href="#" class="hover:text-primary transition-colors">关于</a></li>
+                </ul>
+                <!-- 登录/退出按钮 -->
+                <button id="auth-btn" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    登录
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 md:py-12">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold mb-4">留言板</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">欢迎在这里留下你的足迹和想法，你的每一条留言都会被认真对待</p>
+                <div class="w-20 h-1 bg-primary mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <!-- 留言输入区 - 登录后启用，未登录禁用 -->
+            <div class="joe_comment mb-12 bg-white rounded-xl p-6 comment-shadow">
+                <h3 class="joe_comment__title text-xl font-semibold mb-6 flex items-center">
+                    <i class="fa fa-pencil-square-o mr-2 text-primary"></i>
+                    发表留言
+                </h3>
+
+                <div id="respond-page-464" class="joe_comment__respond">
+                    <div class="joe_comment__respond-type mb-4 flex border-b pb-2">
+                        <button class="item px-4 py-2 mr-2 text-gray-500 hover:text-primary transition-colors" data-type="draw">
+                            <i class="fa fa-paint-brush mr-1"></i>画图模式
+                        </button>
+                        <button class="item px-4 py-2 text-primary border-b-2 border-primary font-medium" data-type="text">
+                            <i class="fa fa-font mr-1"></i>文本模式
+                        </button>
+                    </div>
+                    
+                    <!-- 登录状态提示 -->
+                    <div id="auth-tip" class="bg-blue-50 border-l-4 border-primary p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fa fa-info-circle text-primary"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">请先登录后再发表留言，未登录用户只能查看留言。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="comment-form" method="post" class="joe_comment__respond-form" data-type="text">
+                        <div class="head grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="list">
+                                <input type="text" id="author" name="author" maxlength="16" 
+                                    placeholder="请输入昵称..." 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all bg-gray-100 cursor-not-allowed" 
+                                    disabled>
+                            </div>
+                            <div class="list">
+                                <input type="email" id="mail" name="mail" 
+                                    placeholder="请输入邮箱..." 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all bg-gray-100 cursor-not-allowed" 
+                                    disabled readonly>
+                            </div>
+                            <div class="list">
+                                <input type="text" id="url" name="url" 
+                                    placeholder="请输入网址（非必填）..." 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all bg-gray-100 cursor-not-allowed" 
+                                    disabled>
+                            </div>
+                        </div>
+
+                        <div class="body mb-6">
+                            <textarea id="comment-content" name="text" 
+                                class="text joe_owo__target w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all h-32 resize-none bg-gray-100 cursor-not-allowed" 
+                                placeholder="说点什么吧，点击右上方切换成画图试试？" disabled></textarea>
+                                
+                            <div class="draw" style="display: none;">
+                                <ul class="line flex mb-3">
+                                    <li data-line="3" class="px-3 py-1 border border-gray-300 rounded mr-2 cursor-pointer hover:bg-gray-100 transition-colors">细</li>
+                                    <li data-line="5" class="px-3 py-1 border border-primary bg-primary/10 text-primary rounded mr-2 cursor-pointer">中</li>
+                                    <li data-line="8" class="px-3 py-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 transition-colors">粗</li>
+                                </ul>
+                                <ul class="color flex">
+                                    <li data-color="#303133" class="w-6 h-6 rounded-full bg-gray-800 mr-2 cursor-pointer ring-2 ring-offset-2 ring-gray-300"></li>
+                                    <li data-color="#67c23a" class="w-6 h-6 rounded-full bg-green-500 mr-2 cursor-pointer hover:scale-110 transition-transform"></li>
+                                    <li data-color="#e6a23c" class="w-6 h-6 rounded-full bg-yellow-500 mr-2 cursor-pointer hover:scale-110 transition-transform"></li>
+                                    <li data-color="#f56c6c" class="w-6 h-6 rounded-full bg-red-500 cursor-pointer hover:scale-110 transition-transform"></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3">
+                            <span class="cancle joe_comment__cancle px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="cancel-btn" disabled>取消</span>
+                            <button type="submit" id="submit-btn" class="px-6 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed">发送评论</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 留言列表（空页面初始化） -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-6 flex items-center">
+                    <i class="fa fa-comments-o mr-2 text-primary"></i>
+                    最新留言 (<span id="message-count">0</span>)
+                </h3>
+                
+                <div id="message-list" class="space-y-6">
+                    <!-- 空状态提示 -->
+                    <div class="bg-white rounded-xl p-12 text-center comment-shadow">
+                        <i class="fa fa-comment-o text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">暂无留言，快来发布第一条留言吧～</p>
+                    </div>
+                    <!-- 加载更多按钮（默认隐藏） -->
+                    <div id="load-more-wrap" class="text-center mt-8 hidden">
+                        <button id="load-more-btn" class="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-300">
+                            加载更多留言
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white py-10 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <p>© 2023 飞翔的羊羊 - 留言板</p>
+                <p class="text-gray-400 text-sm mt-2">欢迎常来坐坐</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Supabase 初始化（替换为你的项目信息）
+        const SUPABASE_URL = '你的Supabase项目URL';
+        const SUPABASE_KEY = '你的Supabase匿名密钥';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 2. DOM 元素
+        const authBtn = document.getElementById('auth-btn');
+        const authTip = document.getElementById('auth-tip');
+        const commentForm = document.getElementById('comment-form');
+        const authorInput = document.getElementById('author');
+        const mailInput = document.getElementById('mail');
+        const urlInput = document.getElementById('url');
+        const contentInput = document.getElementById('comment-content');
+        const submitBtn = document.getElementById('submit-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const messageList = document.getElementById('message-list');
+        const messageCount = document.getElementById('message-count');
+        const loadMoreWrap = document.getElementById('load-more-wrap');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+
+        // 3. 全局状态
+        let currentUser = null;
+        let messages = [];
+        let page = 1;
+        const pageSize = 10;
+
+        // 4. 初始化页面
+        async function init() {
+            // 监听登录状态变化
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                currentUser = session?.user || null;
+                updateAuthUI(); // 更新登录态UI
+                if (currentUser) {
+                    await fetchMessages(); // 登录后加载留言
+                } else {
+                    await fetchMessages(); // 未登录也可查看留言
+                }
+            });
+
+            // 检查初始登录状态
+            const { data: { session } } = await supabase.auth.getSession();
+            currentUser = session?.user || null;
+            updateAuthUI();
+            await fetchMessages();
+
+            // 绑定事件
+            bindEvents();
+        }
+
+        // 5. 绑定所有事件
+        function bindEvents() {
+            // 登录/退出按钮
+            authBtn.addEventListener('click', async () => {
+                if (currentUser) {
+                    // 退出登录
+                    await supabase.auth.signOut();
+                    alert('退出登录成功');
+                } else {
+                    // 邮箱验证码登录
+                    const email = prompt('请输入你的邮箱获取登录验证码：');
+                    if (!email) return;
+                    const { error } = await supabase.auth.signInWithOtp({
+                        email,
+                        options: { emailRedirectTo: window.location.href }
+                    });
+                    if (error) {
+                        alert(`登录请求失败：${error.message}`);
+                    } else {
+                        alert('验证码已发送至你的邮箱，请查收并验证');
+                    }
+                }
+            });
+
+            // 表单提交
+            commentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!currentUser) return;
+
+                const author = authorInput.value.trim();
+                const content = contentInput.value.trim();
+                if (!author || !content) {
+                    alert('昵称和留言内容不能为空');
+                    return;
+                }
+
+                // 禁用提交按钮
+                submitBtn.disabled = true;
+                submitBtn.textContent = '提交中...';
+
+                try {
+                    // 提交留言到Supabase
+                    const { data, error } = await supabase
+                        .from('messages')
+                        .insert([{
+                            user_id: currentUser.id,
+                            author: author,
+                            email: currentUser.email,
+                            content: content,
+                            created_at: new Date().toISOString()
+                        }])
+                        .select();
+
+                    if (error) throw new Error(error.message);
+
+                    // 重置表单 + 重新加载留言
+                    commentForm.reset();
+                    await fetchMessages(true); // 强制刷新
+                    alert('留言提交成功！');
+                } catch (err) {
+                    alert(`留言提交失败：${err.message}`);
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '发送评论';
+                }
+            });
+
+            // 取消按钮
+            cancelBtn.addEventListener('click', () => {
+                commentForm.reset();
+            });
+
+            // 画图/文本模式切换（保留原功能）
+            document.querySelectorAll('.joe_comment__respond-type .item').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('.joe_comment__respond-type .item').forEach(btn => {
+                        btn.classList.remove('active', 'text-primary', 'border-b-2', 'border-primary', 'font-medium');
+                        btn.classList.add('text-gray-500');
+                    });
+                    this.classList.add('active', 'text-primary', 'border-b-2', 'border-primary', 'font-medium');
+                    this.classList.remove('text-gray-500');
+                    
+                    const type = this.getAttribute('data-type');
+                    const textArea = document.querySelector('.joe_comment__respond-form .text');
+                    const drawArea = document.querySelector('.joe_comment__respond-form .draw');
+                    
+                    if (type === 'draw') {
+                        textArea.style.display = 'none';
+                        drawArea.style.display = 'block';
+                    } else {
+                        textArea.style.display = 'block';
+                        drawArea.style.display = 'none';
+                    }
+                });
+            });
+
+            // 线条粗细/颜色选择（保留原功能）
+            document.querySelectorAll('.line li').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.line li').forEach(i => {
+                        i.classList.remove('active', 'border-primary', 'bg-primary/10', 'text-primary');
+                        i.classList.add('border-gray-300');
+                    });
+                    this.classList.add('active', 'border-primary', 'bg-primary/10', 'text-primary');
+                    this.classList.remove('border-gray-300');
+                });
+            });
+            document.querySelectorAll('.color li').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.color li').forEach(i => {
+                        i.classList.remove('ring-2', 'ring-offset-2', 'ring-gray-300');
+                    });
+                    this.classList.add('ring-2', 'ring-offset-2', 'ring-gray-300');
+                });
+            });
+
+            // 导航栏滚动效果（保留原功能）
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('header');
+                if (window.scrollY > 10) {
+                    header.classList.add('py-2', 'shadow');
+                    header.classList.remove('py-4');
+                } else {
+                    header.classList.add('py-4');
+                    header.classList.remove('py-2', 'shadow');
+                }
+            });
+
+            // 加载更多
+            loadMoreBtn.addEventListener('click', async () => {
+                page++;
+                await fetchMessages(false);
+            });
+        }
+
+        // 6. 更新登录态UI
+        function updateAuthUI() {
+            if (currentUser) {
+                // 已登录：启用表单
+                authBtn.textContent = '退出登录';
+                authTip.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fa fa-user text-primary"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">你已登录：${currentUser.email}，可以发表留言啦～</p>
+                        </div>
+                    </div>
+                `;
+                
+                // 启用表单控件
+                authorInput.disabled = false;
+                mailInput.disabled = false;
+                urlInput.disabled = false;
+                contentInput.disabled = false;
+                submitBtn.disabled = false;
+                cancelBtn.disabled = false;
+                
+                // 移除禁用样式
+                authorInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                mailInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                urlInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                contentInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                submitBtn.classList.remove('bg-gray-300', 'text-gray-500');
+                submitBtn.classList.add('bg-primary', 'text-white', 'hover:bg-primary/90');
+                cancelBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                // 自动填充邮箱
+                mailInput.value = currentUser.email;
+            } else {
+                // 未登录：禁用表单
+                authBtn.textContent = '登录';
+                authTip.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fa fa-info-circle text-primary"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">请先登录后再发表留言，未登录用户只能查看留言。</p>
+                        </div>
+                    </div>
+                `;
+                
+                // 禁用表单控件
+                authorInput.disabled = true;
+                mailInput.disabled = true;
+                urlInput.disabled = true;
+                contentInput.disabled = true;
+                submitBtn.disabled = true;
+                cancelBtn.disabled = true;
+                
+                // 添加禁用样式
+                authorInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                mailInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                urlInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                contentInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-gray-300', 'text-gray-500');
+                submitBtn.classList.remove('bg-primary', 'text-white', 'hover:bg-primary/90');
+                cancelBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // 7. 从Supabase加载留言
+        async function fetchMessages(forceRefresh = false) {
+            if (forceRefresh) {
+                page = 1;
+                messages = [];
+            }
+
+            try {
+                const { data, error, count } = await supabase
+                    .from('messages')
+                    .select('*', { count: 'exact' })
+                    .order('created_at', { ascending: false })
+                    .range((page - 1) * pageSize, page * pageSize - 1);
+
+                if (error) throw new Error(error.message);
+
+                // 更新留言总数
+                messageCount.textContent = count || 0;
+
+                // 合并数据（加载更多）
+                if (page === 1) {
+                    messages = data;
+                } else {
+                    messages = [...messages, ...data];
+                }
+
+                // 渲染留言列表
+                renderMessages();
+
+                // 显示/隐藏加载更多
+                loadMoreWrap.classList.toggle('hidden', messages.length >= count);
+            } catch (err) {
+                messageList.innerHTML = `
+                    <div class="bg-white rounded-xl p-8 text-center comment-shadow">
+                        <i class="fa fa-exclamation-circle text-2xl text-red-500 mb-2"></i>
+                        <p class="text-gray-600">加载留言失败：${err.message}</p>
+                    </div>
+                `;
+                console.error('加载留言失败：', err);
+            }
+        }
+
+        // 8. 渲染留言列表
+        function renderMessages() {
+            if (messages.length === 0) {
+                messageList.innerHTML = `
+                    <div class="bg-white rounded-xl p-12 text-center comment-shadow">
+                        <i class="fa fa-comment-o text-4xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500">暂无留言，快来发布第一条留言吧～</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 渲染留言项
+            messageList.innerHTML = messages.map(msg => {
+                // 格式化时间
+                const formatTime = (timeStr) => {
+                    const date = new Date(timeStr);
+                    return date.toLocaleString('zh-CN', {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+                };
+
+                // 生成用户头像首字符
+                const avatarChar = msg.author.substring(0, 1).toUpperCase();
+                
+                return `
+                    <div class="bg-white rounded-xl p-6 comment-shadow hover-lift">
+                        <div class="flex items-start mb-4">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-4">${avatarChar}</div>
+                            <div>
+                                <div class="flex items-center">
+                                    <div class="nickname font-medium mr-3">${msg.author}</div>
+                                    <div class="date text-sm text-gray-500">${formatTime(msg.created_at)}</div>
+                                </div>
+                                <div class="text-sm text-gray-500 mt-1">
+                                    <i class="fa fa-envelope-o mr-1"></i> ${msg.email}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content pl-14">
+                            ${msg.content.replace(/\n/g, '<br>')}
+                        </div>
+                        <div class="mt-4 pl-14">
+                            <button class="text-sm text-primary hover:text-primary/80 transition-colors flex items-center">
+                                <i class="fa fa-reply mr-1"></i> 回复
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('') + document.getElementById('load-more-wrap').outerHTML;
+        }
+
+        // 9. 初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
