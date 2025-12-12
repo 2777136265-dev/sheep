@@ -7,6 +7,126 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* 管理员后台专属样式 */
+        .admin-panel {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .admin-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .admin-settings {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+        .user-table {
+            width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+        .user-table th, .user-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .user-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .user-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .disable-btn, .delete-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+        .disable-btn {
+            background-color: #f0f9ff;
+            color: #165dff;
+        }
+        .disable-btn:hover {
+            background-color: #e0f2fe;
+        }
+        .delete-btn {
+            background-color: #fff1f0;
+            color: #ff4d4f;
+        }
+        .delete-btn:hover {
+            background-color: #fee2e2;
+        }
+        /* 开关样式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #3498db;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        @media (max-width: 768px) {
+            .user-table {
+                font-size: 14px;
+            }
+            .user-table th, .user-table td {
+                padding: 8px 10px;
+            }
+            .disable-btn, .delete-btn {
+                padding: 2px 5px;
+                font-size: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -16,7 +136,9 @@
                 <a href="../index.html">返回主页</a>
                 <div id="user-area" class="user-info">
                     <span>👤 管理员</span>
-                    <button class="auth-btn" id="logout-btn">退出登录</button>
+                    <button class="auth-btn" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> 退出登录
+                    </button>
                 </div>
             </nav>
         </div>
@@ -40,7 +162,7 @@
         </div>
         
         <!-- 用户管理区域 -->
-        <div>
+        <div class="user-management">
             <h3>用户管理</h3>
             <table class="user-table">
                 <thead>
@@ -54,7 +176,12 @@
                     </tr>
                 </thead>
                 <tbody id="user-list">
-                    <!-- 用户列表将通过JS动态加载 -->
+                    <!-- 加载状态 -->
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px;">
+                            <i class="fas fa-spinner fa-spin"></i> 加载用户数据中...
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
