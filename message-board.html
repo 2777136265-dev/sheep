@@ -3,21 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>留言 - 飞翔的羊羊</title>
-    <meta name="keywords" content="留言板,互动交流,飞翔的羊羊" />
-    <meta name="description" content="飞翔的羊羊的留言板，欢迎访问留言" />
+    <title>留言 - 我的学习主页</title>
+    <meta name="keywords" content="留言板,互动交流,学习分享" />
+    <meta name="description" content="飞翔的羊羊的留言板，欢迎访问留言交流" />
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 统一背景与全局样式（与主页一致） */
-        body {
+        /* 复用主页核心样式，确保导航栏一致 */
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
             background-color: #f5f5f5;
             color: #333;
-            font-family: 'Inter', 'system-ui', sans-serif;
             line-height: 1.6;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        /* 导航栏样式（与主页完全一致） */
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .nav-container {
             max-width: 1200px;
@@ -27,174 +46,210 @@
             align-items: center;
             padding: 0 20px;
         }
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 1rem 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: bold;
-            color: #3b82f6;
         }
-        nav {
+        .nav-links {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        nav a {
+        .nav-links a {
             color: white;
-            text-decoration: none;
             padding: 0.5rem 1rem;
             border-radius: 4px;
             transition: background-color 0.3s;
         }
-        nav a:hover {
+        .nav-links a:hover {
             background-color: #34495e;
-            color: #3b82f6;
         }
-        nav a.active {
-            color: #3b82f6;
-            border-bottom: 2px solid #3b82f6;
+        /* 留言板入口高亮（当前页面） */
+        .nav-links a.active {
+            background-color: #3498db;
+        }
+        .auth-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .auth-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .auth-btn:hover {
+            background-color: #2980b9;
         }
         .user-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            color: white;
         }
-        /* 圆形头像样式（与主页一致） */
-        .user-avatar {
+        .user-avatar-small {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #3b82f6;
+            border: 2px solid #3498db;
             cursor: pointer;
             transition: transform 0.3s;
         }
-        .user-avatar:hover {
+        .user-avatar-small:hover {
             transform: scale(1.1);
         }
-        .auth-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            background-color: #3b82f6;
+        .sign-btn {
+            background-color: #e67e22;
             color: white;
-            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
             transition: background-color 0.3s;
         }
-        .auth-btn:hover {
-            background-color: #2563eb;
+        .sign-btn:hover {
+            background-color: #d35400;
         }
-        .hidden {
-            display: none;
+        .sign-btn.disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
         }
-        .main-content {
+        /* 留言板主体样式 */
+        .container {
             max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
+            margin: 0 auto;
+            padding: 30px 20px;
         }
-        .card {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-            transition: transform 0.3s;
-        }
-        footer {
+        .page-title {
             text-align: center;
-            padding: 20px;
-            background-color: #2c3e50;
-            color: white;
-            margin-top: 50px;
+            margin-bottom: 40px;
         }
-        /* 留言板专属样式 */
-        .text-center {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .text-center h2 {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+        .page-title h2 {
+            font-size: 2rem;
+            color: #2c3e50;
             margin-bottom: 10px;
-            color: #333;
         }
-        .text-center p {
+        .page-title p {
             color: #666;
             max-width: 800px;
-            margin: 0 auto 20px;
+            margin: 0 auto;
         }
         .divider {
             width: 80px;
             height: 3px;
-            background-color: #3b82f6;
-            margin: 0 auto;
+            background-color: #3498db;
+            margin: 15px auto 0;
         }
+        /* 留言表单样式 */
         .comment-form-container {
             background-color: white;
+            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
         .form-title {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 1.4rem;
+            color: #2c3e50;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            color: #333;
         }
         .form-title i {
-            color: #3b82f6;
+            color: #3498db;
             margin-right: 10px;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 500;
+            color: #333;
         }
         .form-control {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 1rem;
+            transition: border-color 0.3s;
         }
         .form-control:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            border-color: #3498db;
         }
         .form-control:disabled {
             background-color: #f9f9f9;
             cursor: not-allowed;
         }
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
         .btn-group {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
         }
+        .cancel-btn {
+            background-color: #ecf0f1;
+            color: #666;
+            padding: 0.5rem 1.2rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .cancel-btn:hover {
+            background-color: #e0e0e0;
+        }
+        .submit-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+        .submit-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .auth-tip {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid #3498db;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            color: #2980b9;
+        }
+        .auth-tip i {
+            margin-right: 10px;
+        }
+        /* 留言列表样式 */
         .message-list {
-            margin-top: 30px;
+            margin-top: 40px;
+        }
+        .message-list h3 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .message-list h3 i {
+            color: #3498db;
+            margin-right: 10px;
         }
         .message-item {
             background-color: white;
+            padding: 25px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 20px;
             margin-bottom: 20px;
             transition: transform 0.3s;
         }
@@ -212,18 +267,19 @@
             border-radius: 50%;
             object-fit: cover;
             margin-right: 15px;
-            border: 2px solid #f0f0f0;
+            border: 2px solid #ecf0f1;
         }
         .message-meta {
             flex: 1;
         }
         .message-author {
             font-weight: 600;
-            margin-bottom: 5px;
+            color: #2c3e50;
+            margin-bottom: 3px;
         }
         .message-time {
-            color: #999;
             font-size: 0.9rem;
+            color: #999;
         }
         .message-content {
             line-height: 1.8;
@@ -232,7 +288,7 @@
         }
         .no-message {
             text-align: center;
-            padding: 50px 20px;
+            padding: 60px 20px;
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -240,124 +296,104 @@
         }
         .no-message i {
             font-size: 3rem;
-            margin-bottom: 10px;
-            color: #ddd;
+            margin-bottom: 15px;
+            color: #eee;
         }
         .load-more {
             text-align: center;
             margin: 30px auto;
         }
         .load-more-btn {
-            padding: 10px 20px;
-            border: 1px solid #3b82f6;
-            border-radius: 4px;
             background-color: transparent;
-            color: #3b82f6;
-            cursor: pointer;
+            color: #3498db;
+            border: 1px solid #3498db;
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
             transition: all 0.3s;
         }
         .load-more-btn:hover {
-            background-color: #3b82f6;
+            background-color: #3498db;
             color: white;
         }
-        .form-tabs {
-            display: flex;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 20px;
-        }
-        .form-tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        .form-tab.active {
-            border-bottom-color: #3b82f6;
-            color: #3b82f6;
-            font-weight: 600;
-        }
-        .form-tab:hover {
-            color: #3b82f6;
-        }
-        .draw-area {
-            display: none;
-            margin-top: 10px;
-        }
-        .draw-tools {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .tool-item {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .tool-item.active {
-            border-color: #3b82f6;
-            color: #3b82f6;
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-        .tip-alert {
-            background-color: rgba(59, 130, 246, 0.1);
-            border-left: 4px solid #3b82f6;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
-        .tip-alert i {
-            color: #3b82f6;
-            margin-right: 10px;
+        /* 响应式样式（与主页一致） */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-links, .auth-area {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .message-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .message-avatar {
+                margin-bottom: 10px;
+            }
+            .message-content {
+                padding-left: 0;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            .btn-group button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 导航栏（与主页完全一致） -->
     <header>
         <div class="nav-container">
-            <div class="logo">飞翔的羊羊</div>
-            <nav>
-                <a href="index.html">首页</a>
-                <a href="message-board.html" class="active">留言板</a>
-                <a href="#">文章</a>
-                <a href="#">关于</a>
-                <!-- 未登录状态 -->
-                <div id="unauth-area" class="user-info">
-                    <button class="auth-btn" id="login-btn">登录</button>
+            <div class="logo">我的学习主页</div>
+            
+            <!-- 导航链接区域 -->
+            <div class="nav-links">
+                <a href="index.html">个人介绍</a>
+                <a href="index.html#materials">学习资料</a>
+                <a href="index.html#contact">联系方式</a>
+                <!-- 留言板入口（当前页面高亮） -->
+                <a href="message-board.html" class="active" style="display: flex; align-items: center;">
+                    <<i class="fa fa-comments-o mr-1"></</i> 留言板
+                </a>
+                <a href="admin.html" id="admin-link" style="display: none;">管理员后台</a>
+            </div>
+            
+            <!-- 登录/用户信息区域 -->
+            <div class="auth-area">
+                <!-- 未登录显示登录入口 -->
+                <div id="auth-entrance" style="display: block;">
+                    <a href="login.html" class="auth-btn">登录/注册</a>
                 </div>
-                <!-- 已登录状态（默认隐藏） -->
-                <div id="auth-area" class="user-info hidden">
-                    <img src="" alt="用户头像" class="user-avatar" id="user-avatar">
-                    <span id="user-email"></span>
-                    <button class="auth-btn" id="logout-btn">退出登录</button>
+                <!-- 登录后显示用户信息 -->
+                <div id="user-area" class="user-info" style="display: none;">
+                    <img src="" alt="用户头像" class="user-avatar-small" id="nav-avatar">
+                    <span>👤 <span id="username">用户名</span></span>
+                    <span>积分：<span id="points">0</span> ✨</span>
+                    <button class="sign-btn" id="sign-btn">今日签到</button>
+                    <button class="auth-btn" id="logout-btn">退出</button>
                 </div>
-            </nav>
+            </div>
         </div>
     </header>
 
-    <div class="main-content">
-        <div class="text-center">
+    <!-- 留言板主体内容 -->
+    <div class="container">
+        <div class="page-title">
             <h2>留言板</h2>
-            <p>欢迎在这里留下你的足迹和想法，你的每一条留言都会被认真对待～</p>
+            <p>欢迎在这里留下你的学习心得、问题交流或建议，我会及时回复～</p>
             <div class="divider"></div>
         </div>
 
-        <!-- 留言输入区 -->
+        <!-- 留言表单 -->
         <div class="comment-form-container">
-            <div class="form-title">
+            <h3 class="form-title">
                 <<i class="fa fa-pencil-square-o"></</i> 发表留言
-            </div>
-            <div class="form-tabs">
-                <div class="form-tab active" data-type="text">
-                    <<i class="fa fa-font mr-1"></</i> 文本模式
-                </div>
-                <div class="form-tab" data-type="draw">
-                    <<i class="fa fa-paint-brush mr-1"></</i> 画图模式
-                </div>
-            </div>
-            <div class="tip-alert" id="auth-tip">
+            </h3>
+            <div class="auth-tip" id="auth-tip">
                 <<i class="fa fa-info-circle"></</i>
                 <span>请先登录后再发表留言，未登录用户只能查看留言。</span>
             </div>
@@ -372,125 +408,252 @@
                 </div>
                 <div class="form-group">
                     <label for="content">留言内容</label>
-                    <textarea id="content" name="content" class="form-control" rows="5" placeholder="说点什么吧～" disabled></textarea>
-                </div>
-                <div class="draw-area" id="draw-area">
-                    <div class="draw-tools">
-                        <div class="tool-item active" data-line="3">细</div>
-                        <div class="tool-item" data-line="5">中</div>
-                        <div class="tool-item" data-line="8">粗</div>
-                        <div class="tool-item active" data-color="#333" style="background-color: #333; width: 20px; height: 20px; padding: 0;"></div>
-                        <div class="tool-item" data-color="#f00" style="background-color: #f00; width: 20px; height: 20px; padding: 0;"></div>
-                        <div class="tool-item" data-color="#0f0" style="background-color: #0f0; width: 20px; height: 20px; padding: 0;"></div>
-                    </div>
-                    <canvas id="draw-canvas" width="100%" height="200" style="border: 1px solid #ddd; border-radius: 4px;"></canvas>
+                    <textarea id="content" name="content" class="form-control" placeholder="说点什么吧～" disabled></textarea>
                 </div>
                 <div class="btn-group">
-                    <button type="button" class="auth-btn" style="background-color: #eee; color: #666;" id="cancel-btn" disabled>取消</button>
-                    <button type="submit" class="auth-btn" id="submit-btn" disabled>发送留言</button>
+                    <button type="button" class="cancel-btn" id="cancel-btn" disabled>取消</button>
+                    <button type="submit" class="submit-btn" id="submit-btn" disabled>发送留言</button>
                 </div>
             </form>
         </div>
 
         <!-- 留言列表 -->
-        <div class="message-list" id="message-list">
-            <div class="no-message">
-                <<i class="fa fa-comment-o"></</i>
-                <p>暂无留言，快来发布第一条留言吧～</p>
+        <div class="message-list">
+            <h3><<i class="fa fa-comments-o"></</i> 最新留言</h3>
+            <div id="message-container">
+                <!-- 空状态 -->
+                <div class="no-message">
+                    <<i class="fa fa-comment-o"></</i>
+                    <p>暂无留言，快来发布第一条留言吧～</p>
+                </div>
             </div>
-        </div>
-
-        <!-- 加载更多 -->
-        <div class="load-more hidden" id="load-more">
-            <button class="load-more-btn" id="load-more-btn">加载更多</button>
+            <!-- 加载更多 -->
+            <div class="load-more" id="load-more" style="display: none;">
+                <button class="load-more-btn" id="load-more-btn">加载更多</button>
+            </div>
         </div>
     </div>
 
-    <footer>
-        <p>© 2025 飞翔的羊羊 - 留言板 | 保留所有权利</p>
+    <!-- 页脚（与主页一致） -->
+    <footer style="background-color: #2c3e50; color: white; text-align: center; padding: 2rem 0; margin-top: 40px;">
+        <p>© 2025 我的个人学习主页 | 大学生学习分享平台</p>
+        <p style="margin-top: 0.5rem; font-size: 0.9rem;">愿我们都在学习的路上不断进步～</p>
     </footer>
 
     <script>
-        // Supabase初始化
-        const SUPABASE_URL = '你的Supabase项目URL';
-        const SUPABASE_KEY = '你的Supabase匿名密钥';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // DOM元素
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const unauthArea = document.getElementById('unauth-area');
-        const authArea = document.getElementById('auth-area');
-        const userAvatar = document.getElementById('user-avatar');
-        const userEmail = document.getElementById('user-email');
-        const commentForm = document.getElementById('comment-form');
-        const authorInput = document.getElementById('author');
-        const emailInput = document.getElementById('email');
-        const contentInput = document.getElementById('content');
-        const submitBtn = document.getElementById('submit-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const authTip = document.getElementById('auth-tip');
-        const messageList = document.getElementById('message-list');
-        const loadMore = document.getElementById('load-more');
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        const formTabs = document.querySelectorAll('.form-tab');
-        const drawArea = document.getElementById('draw-area');
-        const drawCanvas = document.getElementById('draw-canvas');
+        // Supabase核心配置（与主页一致）
+        const SUPABASE_URL = 'https://neflfdfpzyjookonmleo.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZmxmZGZwenlqb29rb25tbGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzQxMTUsImV4cCI6MjA4MDk1MDExNX0.z944F1VmJO9ro-1iDtB9HD_1NVThzz7mzqSX0IQqj68';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // 全局状态
         let currentUser = null;
         let messages = [];
         let page = 1;
         const pageSize = 10;
-        let isDrawing = false;
 
-        // 初始化页面
-        async function init() {
-            // 监听登录状态变化
-            supabase.auth.onAuthStateChange((_event, session) => {
+        // DOM元素
+        const authEntrance = document.getElementById('auth-entrance');
+        const userArea = document.getElementById('user-area');
+        const navAvatar = document.getElementById('nav-avatar');
+        const usernameEl = document.getElementById('username');
+        const pointsEl = document.getElementById('points');
+        const signBtn = document.getElementById('sign-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const authTip = document.getElementById('auth-tip');
+        const commentForm = document.getElementById('comment-form');
+        const authorInput = document.getElementById('author');
+        const emailInput = document.getElementById('email');
+        const contentInput = document.getElementById('content');
+        const submitBtn = document.getElementById('submit-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const messageContainer = document.getElementById('message-container');
+        const loadMore = document.getElementById('load-more');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const adminLink = document.getElementById('admin-link');
+
+        // 页面加载初始化
+        window.onload = async function() {
+            await checkLoginStatus(); // 检查登录状态（与主页逻辑一致）
+            bindLogoutEvent(); // 绑定退出事件
+            bindSignEvent(); // 绑定签到事件
+            bindFormEvents(); // 绑定留言表单事件
+            await fetchMessages(); // 加载留言
+        };
+
+        // 检查登录状态（复用主页逻辑）
+        async function checkLoginStatus() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
                 currentUser = session?.user || null;
-                updateAuthUI();
+
                 if (currentUser) {
-                    fetchMessages();
+                    // 已登录状态
+                    authEntrance.style.display = 'none';
+                    userArea.style.display = 'flex';
+                    await renderUserInfo(currentUser.id, currentUser.email);
+                    await checkSignStatus();
+                    updateFormStatus(true); // 启用表单
+                    
+                    // 管理员权限判断（可选）
+                    const { data: user } = await supabase
+                        .from('users')
+                        .select('role')
+                        .eq('id', currentUser.id)
+                        .single();
+                    if (user?.role === 'admin') {
+                        adminLink.style.display = 'block';
+                    }
                 } else {
-                    fetchMessages(); // 未登录也可查看留言
+                    // 未登录状态
+                    authEntrance.style.display = 'block';
+                    userArea.style.display = 'none';
+                    updateFormStatus(false); // 禁用表单
                 }
-            });
-
-            // 检查初始登录状态
-            const { data: { session } } = await supabase.auth.getSession();
-            currentUser = session?.user || null;
-            updateAuthUI();
-            if (currentUser) {
-                fetchMessages();
-            } else {
-                fetchMessages();
+            } catch (err) {
+                console.error('检查登录状态失败：', err);
+                alert('登录状态检测失败，请刷新页面');
             }
-
-            // 绑定事件
-            bindEvents();
         }
 
-        // 绑定所有事件
-        function bindEvents() {
-            // 登录按钮
-            loginBtn.addEventListener('click', async () => {
-                const email = prompt('请输入你的QQ邮箱获取登录验证码：');
-                if (!email) return;
-                const { error } = await supabase.auth.signInWithOtp({
-                    email,
-                    options: { emailRedirectTo: window.location.href }
-                });
-                if (error) alert(`登录请求失败：${error.message}`);
-                else alert('验证码已发送至你的邮箱，请查收并验证');
-            });
+        // 渲染用户信息（复用主页逻辑，含头像）
+        async function renderUserInfo(userId, userEmail) {
+            try {
+                const { data: userProfile } = await supabase
+                    .from('users')
+                    .select('username, points')
+                    .eq('id', userId)
+                    .single();
 
-            // 退出登录按钮
-            logoutBtn.addEventListener('click', async () => {
-                await supabase.auth.signOut();
-                alert('退出登录成功');
-            });
+                usernameEl.textContent = userProfile?.username || '未知用户';
+                pointsEl.textContent = userProfile?.points || 0;
 
+                // 加载QQ头像
+                if (userEmail && userEmail.includes('@qq.com')) {
+                    const qqNumber = userEmail.split('@')[0];
+                    const avatarUrl = `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640`;
+                    navAvatar.src = avatarUrl;
+                    navAvatar.alt = `${usernameEl.textContent}的头像`;
+                }
+            } catch (err) {
+                console.error('渲染用户信息失败：', err);
+                usernameEl.textContent = '未知用户';
+            }
+        }
+
+        // 检查签到状态（复用主页逻辑）
+        async function checkSignStatus() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const { data: signRecord } = await supabase
+                    .from('sign_records')
+                    .select('id')
+                    .eq('user_id', currentUser.id)
+                    .eq('sign_date', today)
+                    .single();
+
+                if (signRecord) {
+                    signBtn.textContent = '今日已签到';
+                    signBtn.classList.add('disabled');
+                    signBtn.disabled = true;
+                } else {
+                    signBtn.textContent = '今日签到';
+                    signBtn.classList.remove('disabled');
+                    signBtn.disabled = false;
+                }
+            } catch (err) {
+                signBtn.textContent = '今日签到';
+                signBtn.classList.remove('disabled');
+                signBtn.disabled = false;
+            }
+        }
+
+        // 绑定退出登录事件（复用主页逻辑）
+        function bindLogoutEvent() {
+            logoutBtn.onclick = async function() {
+                try {
+                    await supabase.auth.signOut();
+                    alert('退出登录成功！');
+                    window.location.reload();
+                } catch (err) {
+                    alert('退出登录失败：' + err.message);
+                }
+            };
+        }
+
+        // 绑定签到事件（复用主页逻辑）
+        function bindSignEvent() {
+            signBtn.onclick = async function() {
+                try {
+                    signBtn.disabled = true;
+                    signBtn.textContent = '签到中...';
+
+                    const { data: userProfile } = await supabase
+                        .from('users')
+                        .select('points')
+                        .eq('id', currentUser.id)
+                        .single();
+
+                    const currentPoints = userProfile?.points || 0;
+                    const addPoints = 10;
+                    const newPoints = currentPoints + addPoints;
+
+                    // 更新积分
+                    await supabase
+                        .from('users')
+                        .update({ points: newPoints })
+                        .eq('id', currentUser.id);
+
+                    // 记录签到
+                    const today = new Date().toISOString().split('T')[0];
+                    await supabase.from('sign_records').insert([{
+                        user_id: currentUser.id,
+                        sign_date: today,
+                        points: addPoints
+                    }]);
+
+                    // 更新页面
+                    pointsEl.textContent = newPoints;
+                    signBtn.textContent = '今日已签到';
+                    signBtn.classList.add('disabled');
+                    alert(`签到成功！获得${addPoints}积分，当前积分：${newPoints}`);
+                } catch (err) {
+                    alert('签到失败：' + err.message);
+                    signBtn.textContent = '今日签到';
+                    signBtn.disabled = false;
+                }
+            };
+        }
+
+        // 更新表单状态（登录/未登录切换）
+        function updateFormStatus(isEnabled) {
+            authorInput.disabled = !isEnabled;
+            emailInput.disabled = !isEnabled;
+            contentInput.disabled = !isEnabled;
+            submitBtn.disabled = !isEnabled;
+            cancelBtn.disabled = !isEnabled;
+
+            if (isEnabled) {
+                // 已登录：启用表单
+                authorInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                emailInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                contentInput.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                submitBtn.classList.remove('bg-gray-300', 'text-gray-500');
+                authTip.innerHTML = `<<i class="fa fa-user"></</i><span>你已登录：${currentUser.email}，可以发表留言啦～</span>`;
+                // 填充邮箱
+                emailInput.value = currentUser.email;
+            } else {
+                // 未登录：禁用表单
+                authorInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                emailInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                contentInput.classList.add('bg-gray-100', 'cursor-not-allowed');
+                submitBtn.classList.add('bg-gray-300', 'text-gray-500');
+                authTip.innerHTML = `<<i class="fa fa-info-circle"></</i><span>请先登录后再发表留言，未登录用户只能查看留言。</span>`;
+            }
+        }
+
+        // 绑定留言表单事件
+        function bindFormEvents() {
             // 表单提交
             commentForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -507,6 +670,7 @@
                 submitBtn.textContent = '提交中...';
 
                 try {
+                    // 提交留言到Supabase
                     const { data, error } = await supabase
                         .from('messages')
                         .insert([{
@@ -520,11 +684,12 @@
 
                     if (error) throw new Error(error.message);
 
+                    // 重置表单+刷新留言
                     commentForm.reset();
-                    fetchMessages(true);
+                    await fetchMessages(true);
                     alert('留言提交成功！');
                 } catch (err) {
-                    alert(`留言提交失败：${err.message}`);
+                    alert('留言提交失败：' + err.message);
                 } finally {
                     submitBtn.disabled = false;
                     submitBtn.textContent = '发送留言';
@@ -536,110 +701,14 @@
                 commentForm.reset();
             });
 
-            // 表单模式切换
-            formTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    formTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    if (tab.dataset.type === 'draw') {
-                        drawArea.style.display = 'block';
-                        contentInput.style.display = 'none';
-                    } else {
-                        drawArea.style.display = 'none';
-                        contentInput.style.display = 'block';
-                    }
-                });
-            });
-
-            // 画图工具事件（简化版）
-            document.querySelectorAll('.tool-item[data-line]').forEach(item => {
-                item.addEventListener('click', () => {
-                    document.querySelectorAll('.tool-item[data-line]').forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                });
-            });
-            document.querySelectorAll('.tool-item[data-color]').forEach(item => {
-                item.addEventListener('click', () => {
-                    document.querySelectorAll('.tool-item[data-color]').forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                });
-            });
-
             // 加载更多
             loadMoreBtn.addEventListener('click', async () => {
                 page++;
-                fetchMessages(false);
+                await fetchMessages(false);
             });
-
-            // 画图功能（简化版）
-            let lastX = 0;
-            let lastY = 0;
-            const ctx = drawCanvas.getContext('2d');
-            drawCanvas.addEventListener('mousedown', (e) => {
-                if (!currentUser) return;
-                isDrawing = true;
-                [lastX, lastY] = [e.offsetX, e.offsetY];
-            });
-            drawCanvas.addEventListener('mousemove', draw);
-            drawCanvas.addEventListener('mouseup', () => isDrawing = false);
-            drawCanvas.addEventListener('mouseout', () => isDrawing = false);
-
-            function draw(e) {
-                if (!isDrawing) return;
-                ctx.beginPath();
-                ctx.moveTo(lastX, lastY);
-                ctx.lineTo(e.offsetX, e.offsetY);
-                const lineWidth = document.querySelector('.tool-item[data-line].active').dataset.line;
-                const color = document.querySelector('.tool-item[data-color].active').dataset.color;
-                ctx.lineWidth = lineWidth;
-                ctx.strokeStyle = color;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-                [lastX, lastY] = [e.offsetX, e.offsetY];
-            }
         }
 
-        // 更新登录态UI
-        function updateAuthUI() {
-            if (currentUser) {
-                // 已登录
-                unauthArea.classList.add('hidden');
-                authArea.classList.remove('hidden');
-                userEmail.textContent = currentUser.email;
-                // 生成QQ头像
-                const qqNumber = currentUser.email.split('@')[0];
-                const avatarUrl = `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640`;
-                userAvatar.src = avatarUrl;
-                userAvatar.alt = `用户${qqNumber}的头像`;
-
-                // 启用表单
-                authorInput.disabled = false;
-                emailInput.disabled = false;
-                contentInput.disabled = false;
-                submitBtn.disabled = false;
-                cancelBtn.disabled = false;
-                authTip.innerHTML = `<<i class="fa fa-user"></</i><span>你已登录：${currentUser.email}，可以发表留言啦～</span>`;
-
-                // 填充邮箱
-                emailInput.value = currentUser.email;
-            } else {
-                // 未登录
-                unauthArea.classList.remove('hidden');
-                authArea.classList.add('hidden');
-                userAvatar.src = '';
-                userEmail.textContent = '';
-
-                // 禁用表单
-                authorInput.disabled = true;
-                emailInput.disabled = true;
-                contentInput.disabled = true;
-                submitBtn.disabled = true;
-                cancelBtn.disabled = true;
-                authTip.innerHTML = `<<i class="fa fa-info-circle"></</i><span>请先登录后再发表留言，未登录用户只能查看留言。</span>`;
-            }
-        }
-
-        // 加载留言
+        // 加载留言列表
         async function fetchMessages(forceRefresh = false) {
             if (forceRefresh) {
                 page = 1;
@@ -656,73 +725,56 @@
                 if (error) throw new Error(error.message);
 
                 // 更新留言数据
-                if (page === 1) {
-                    messages = data;
-                } else {
-                    messages = [...messages, ...data];
-                }
+                messages = forceRefresh ? data : [...messages, ...data];
 
                 // 渲染留言
-                renderMessages(count);
+                if (messages.length === 0) {
+                    messageContainer.innerHTML = `
+                        <div class="no-message">
+                            <<i class="fa fa-comment-o"></</i>
+                            <p>暂无留言，快来发布第一条留言吧～</p>
+                        </div>
+                    `;
+                    loadMore.style.display = 'none';
+                    return;
+                }
+
+                // 渲染留言项
+                messageContainer.innerHTML = messages.map(msg => {
+                    const qqNumber = msg.email.includes('@qq.com') ? msg.email.split('@')[0] : '';
+                    const avatarUrl = qqNumber ? `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640` : 'https://q1.qlogo.cn/g?b=qq&nk=0&s=640';
+                    const formatTime = (timeStr) => {
+                        return new Date(timeStr).toLocaleString('zh-CN', {
+                            year: 'numeric', month: '2-digit', day: '2-digit',
+                            hour: '2-digit', minute: '2-digit'
+                        });
+                    };
+
+                    return `
+                        <div class="message-item">
+                            <div class="message-header">
+                                <img src="${avatarUrl}" alt="${msg.author}的头像" class="message-avatar">
+                                <div class="message-meta">
+                                    <div class="message-author">${msg.author}</div>
+                                    <div class="message-time">${formatTime(msg.created_at)} · ${msg.email}</div>
+                                </div>
+                            </div>
+                            <div class="message-content">${msg.content.replace(/\n/g, '<br>')}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                // 显示/隐藏加载更多
+                loadMore.style.display = messages.length >= count ? 'none' : 'block';
             } catch (err) {
-                messageList.innerHTML = `
+                messageContainer.innerHTML = `
                     <div class="no-message">
-                        <<i class="fa fa-exclamation-circle" style="color: #f00;"></</i>
+                        <<i class="fa fa-exclamation-circle" style="color: #e74c3c;"></</i>
                         <p>加载留言失败：${err.message}</p>
                     </div>
                 `;
             }
         }
-
-        // 渲染留言
-        function renderMessages(total) {
-            if (messages.length === 0) {
-                messageList.innerHTML = `
-                    <div class="no-message">
-                        <<i class="fa fa-comment-o"></</i>
-                        <p>暂无留言，快来发布第一条留言吧～</p>
-                    </div>
-                `;
-                loadMore.classList.add('hidden');
-                return;
-            }
-
-            // 显示加载更多
-            if (messages.length < total) {
-                loadMore.classList.remove('hidden');
-            } else {
-                loadMore.classList.add('hidden');
-            }
-
-            // 渲染留言列表
-            messageList.innerHTML = messages.map(msg => {
-                const qqNumber = msg.email.split('@')[0];
-                const avatarUrl = `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640`;
-                const formatTime = (timeStr) => {
-                    const date = new Date(timeStr);
-                    return date.toLocaleString('zh-CN', {
-                        year: 'numeric', month: '2-digit', day: '2-digit',
-                        hour: '2-digit', minute: '2-digit'
-                    });
-                };
-
-                return `
-                    <div class="message-item">
-                        <div class="message-header">
-                            <img src="${avatarUrl}" alt="${msg.author}的头像" class="message-avatar">
-                            <div class="message-meta">
-                                <div class="message-author">${msg.author}</div>
-                                <div class="message-time">${formatTime(msg.created_at)} · ${msg.email}</div>
-                            </div>
-                        </div>
-                        <div class="message-content">${msg.content.replace(/\n/g, '<br>')}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // 初始化
-        init();
     </script>
 </body>
 </html>
