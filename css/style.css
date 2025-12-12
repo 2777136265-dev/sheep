@@ -1,4 +1,24 @@
 /* 全局样式 */
+/* 统一按钮样式与主页一致 */
+#submit-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+#submit-btn:hover {
+    background-color: #2980b9;
+}
+
+#cancel-btn {
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    border-radius: 4px;
+}
 * {
     margin: 0;
     padding: 0;
