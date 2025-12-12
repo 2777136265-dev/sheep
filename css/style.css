@@ -1,24 +1,4 @@
-/* 全局样式 */
-/* 统一按钮样式与主页一致 */
-#submit-btn {
-    background-color: #3498db;
-    color: white;
-    padding: 8px 15px;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-#submit-btn:hover {
-    background-color: #2980b9;
-}
-
-#cancel-btn {
-    background-color: transparent;
-    color: #666;
-    border: 1px solid #ddd;
-    padding: 8px 15px;
-    border-radius: 4px;
-}
+/* 全局样式重置 - 保留原有基础样式 */
 * {
     margin: 0;
     padding: 0;
@@ -31,7 +11,7 @@ body {
     color: #333;
 }
 
-/* 登录/注册页面样式 */
+/* 登录/注册页面样式 - 保留原有 */
 .login-page {
     display: flex;
     justify-content: center;
@@ -106,7 +86,7 @@ body {
     text-decoration: none;
 }
 
-/* 导航栏样式 */
+/* 导航栏样式 - 整合头像样式，保留原有基础样式 */
 .nav-container {
     display: flex;
     justify-content: space-between;
@@ -138,6 +118,12 @@ nav a:hover {
     color: #2ecc71;
 }
 
+/* 激活状态的导航链接（留言板专用） */
+nav a.active {
+    color: #3498db;
+    border-bottom: 2px solid #3498db;
+}
+
 .auth-btn {
     padding: 8px 15px;
     border: none;
@@ -147,12 +133,32 @@ nav a:hover {
     cursor: pointer;
     text-decoration: none;
     font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.auth-btn:hover {
+    background-color: #2980b9;
 }
 
 .user-info {
     display: flex;
     align-items: center;
     gap: 15px;
+}
+
+/* 圆形头像样式 - 新增，与原有样式兼容 */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #3498db;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.user-avatar:hover {
+    transform: scale(1.1);
 }
 
 .sign-btn {
@@ -165,7 +171,7 @@ nav a:hover {
     font-size: 14px;
 }
 
-/* 主体内容样式 */
+/* 主体内容样式 - 保留原有 */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -286,7 +292,271 @@ nav a:hover {
     text-align: center;
 }
 
-/* 页脚样式 */
+/* 留言板专用样式 - 新增，与原有样式统一 */
+.main-content {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.text-center {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.text-center h2 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.text-center p {
+    color: #666;
+    max-width: 800px;
+    margin: 0 auto 20px;
+}
+
+.divider {
+    width: 80px;
+    height: 3px;
+    background-color: #3498db;
+    margin: 0 auto;
+}
+
+.comment-form-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.form-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    color: #333;
+}
+
+.form-title i {
+    color: #3498db;
+    margin-right: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-control:disabled {
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* 留言板按钮样式 - 整合原有按钮样式，避免重复 */
+#submit-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+#submit-btn:hover {
+    background-color: #2980b9;
+}
+
+#cancel-btn {
+    background-color: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    border-radius: 4px;
+}
+
+.message-list {
+    margin-top: 30px;
+}
+
+.message-item {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: transform 0.3s;
+}
+
+.message-item:hover {
+    transform: translateY(-3px);
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.message-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+    border: 2px solid #f0f0f0;
+}
+
+.message-meta {
+    flex: 1;
+}
+
+.message-author {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.message-time {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.message-content {
+    line-height: 1.8;
+    color: #333;
+    padding-left: 65px;
+}
+
+.no-message {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    color: #999;
+}
+
+.no-message i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: #ddd;
+}
+
+.load-more {
+    text-align: center;
+    margin: 30px auto;
+}
+
+.load-more-btn {
+    padding: 10px 20px;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+    background-color: transparent;
+    color: #3498db;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.load-more-btn:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+.form-tabs {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+}
+
+.form-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.form-tab.active {
+    border-bottom-color: #3498db;
+    color: #3498db;
+    font-weight: 600;
+}
+
+.form-tab:hover {
+    color: #3498db;
+}
+
+.draw-area {
+    display: none;
+    margin-top: 10px;
+}
+
+.draw-tools {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.tool-item {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tool-item.active {
+    border-color: #3498db;
+    color: #3498db;
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.tip-alert {
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 4px solid #3498db;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.tip-alert i {
+    color: #3498db;
+    margin-right: 10px;
+}
+
+/* 隐藏元素通用类 */
+.hidden {
+    display: none;
+}
+
+/* 页脚样式 - 保留原有 */
 footer {
     text-align: center;
     padding: 20px;
@@ -296,7 +566,7 @@ footer {
     font-size: 14px;
 }
 
-/* 响应式适配 */
+/* 响应式适配 - 整合所有响应式样式，避免重复 */
 @media (max-width: 768px) {
     .profile {
         flex-direction: column;
@@ -312,9 +582,44 @@ footer {
         flex-wrap: wrap;
         justify-content: center;
     }
+
+    /* 导航栏响应式 - 补充 */
+    .nav-container {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px 20px;
+    }
+
+    /* 留言板响应式 */
+    .main-content {
+        padding: 0 10px;
+    }
+
+    .form-tabs {
+        flex-wrap: wrap;
+    }
+
+    .form-tab {
+        flex: 1 1 50%;
+        text-align: center;
+        padding: 10px 5px;
+    }
+
+    .message-content {
+        padding-left: 0;
+    }
+
+    .message-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .message-avatar {
+        margin-bottom: 10px;
+    }
 }
 
-/* 超小屏手机适配（320px及以下） */
+/* 超小屏手机适配（320px及以下） - 保留原有 */
 @media (max-width: 320px) {
     .logo {
         font-size: 16px;
@@ -330,9 +635,19 @@ footer {
         padding: 5px 8px;
         font-size: 12px;
     }
+
+    /* 留言板超小屏适配 */
+    .form-control {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    .message-item {
+        padding: 15px;
+    }
 }
 
-/* 大屏手机/平板适配（768px及以上） */
+/* 大屏手机/平板适配（768px及以上） - 保留原有 */
 @media (min-width: 768px) {
     .nav-container {
         padding: 15px 20px;
