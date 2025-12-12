@@ -3,539 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的个人学习主页 | 大学生</title>
+    <title>飞翔的羊羊 - 主页</title>
+    <meta name="keywords" content="飞翔的羊羊,个人主页,学习分享" />
+    <meta name="description" content="飞翔的羊羊的个人学习主页，记录成长与分享" />
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* 基础样式重置 */
-        * {
+        /* 统一背景与全局样式 */
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft Yahei", sans-serif;
-        }
-        body {
             background-color: #f5f5f5;
             color: #333;
+            font-family: 'Inter', 'system-ui', sans-serif;
             line-height: 1.6;
-        }
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-        button {
-            cursor: pointer;
-            border: none;
-            background: none;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        /* 导航栏样式 - 核心调整：登录入口移到右上角 */
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 1rem 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .nav-container {
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between; /* 两端对齐，实现登录入口右对齐 */
+            justify-content: space-between;
             align-items: center;
             padding: 0 20px;
         }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 999;
         }
-        /* 导航链接区域 */
-        .nav-links {
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        nav {
             display: flex;
             align-items: center;
             gap: 20px;
         }
-        .nav-links a {
+        nav a {
             color: white;
+            text-decoration: none;
             padding: 0.5rem 1rem;
             border-radius: 4px;
             transition: background-color 0.3s;
         }
-        .nav-links a:hover {
+        nav a:hover {
             background-color: #34495e;
-        }
-        /* 登录/用户信息区域（右上角） */
-        .auth-area {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .auth-btn {
-            background-color: #3498db;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .auth-btn:hover {
-            background-color: #2980b9;
+            color: #3b82f6;
         }
         .user-info {
             display: flex;
             align-items: center;
-            gap: 15px;
-            color: white;
+            gap: 10px;
         }
-        .sign-btn {
-            background-color: #e67e22;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        .sign-btn:hover {
-            background-color: #d35400;
-        }
-        .sign-btn.disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-        /* 个人介绍样式 */
-        .profile {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 40px;
-        }
-        .profile-img {
-            width: 150px;
-            height: 150px;
+        /* 圆形头像样式 */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 5px solid #ecf0f1;
-        }
-        .profile-info h2 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-        .profile-info p {
-            margin-bottom: 10px;
-            color: #666;
-        }
-        .tag {
-            display: inline-block;
-            background-color: #3498db;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            margin-right: 10px;
-            margin-top: 10px;
-            font-size: 0.9rem;
-        }
-        /* 学习资料样式 */
-        .materials {
-            margin-bottom: 40px;
-        }
-        .materials h2 {
-            font-size: 1.6rem;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            border-left: 5px solid #3498db;
-            padding-left: 15px;
-        }
-        .material-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .material-card {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 2px solid #3b82f6;
+            cursor: pointer;
             transition: transform 0.3s;
         }
-        .material-card:hover {
-            transform: translateY(-5px);
+        .user-avatar:hover {
+            transform: scale(1.1);
         }
-        .material-card h3 {
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-        .material-card p {
-            color: #666;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
-        .material-card a {
-            display: inline-block;
-            background-color: #3498db;
-            color: white;
-            padding: 8px 15px;
+        .auth-btn {
+            padding: 6px 12px;
+            border: none;
             border-radius: 4px;
+            background-color: #3b82f6;
+            color: white;
+            cursor: pointer;
             transition: background-color 0.3s;
         }
-        .material-card a:hover {
-            background-color: #2980b9;
+        .auth-btn:hover {
+            background-color: #2563eb;
         }
-        /* 联系方式样式 - 修正布局和标签错误 */
-        .contact {
+        .hidden {
+            display: none;
+        }
+        .main-content {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 20px;
+        }
+        .card {
             background-color: white;
-            padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 40px;
-        }
-        .contact h2 {
-            font-size: 1.6rem;
+            padding: 20px;
             margin-bottom: 20px;
-            color: #2c3e50;
-            border-left: 5px solid #3498db;
-            padding-left: 15px;
         }
-        .contact-info {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .card:hover {
+            transform: translateY(-5px);
+            transition: transform 0.3s;
         }
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 1.1rem;
-        }
-        .contact-item i {
-            color: #3498db;
-            font-size: 1.2rem;
-            width: 24px; /* 固定图标宽度，对齐更整齐 */
-            text-align: center;
-        }
-        /* 页脚样式 */
         footer {
+            text-align: center;
+            padding: 20px;
             background-color: #2c3e50;
             color: white;
-            text-align: center;
-            padding: 2rem 0;
-            margin-top: 40px;
+            margin-top: 50px;
         }
-        footer p {
-            font-size: 1rem;
+        /* 留言板入口样式 */
+        .message-entry {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 16px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
         }
-        /* 响应式样式 - 适配手机端 */
-        @media (max-width: 768px) {
-            .profile {
-                flex-direction: column;
-                text-align: center;
-            }
-            .nav-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-            .nav-links, .auth-area {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .contact-item {
-                font-size: 1rem;
-            }
+        .message-entry:hover {
+            background-color: #2563eb;
+            color: white;
         }
     </style>
-    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- 导航栏 - 重构布局，登录入口移到右上角 -->
     <header>
         <div class="nav-container">
-            <div class="logo">我的学习主页</div>
-            <!-- 插入到主页导航栏的<ul>标签内 -->
-<li>
-    <a href="/message-board.html" class="hover:text-primary transition-colors flex items-center">
-        <i class="fa fa-comments-o mr-1"></i> 留言板
-    </a>
-</li>
-            <!-- 导航链接区域 -->
-            <div class="nav-links">
-                <a href="#profile">个人介绍</a>
-                <a href="#materials">学习资料</a>
-                <a href="#contact">联系方式</a>
-                <a href="admin.html" id="admin-link" style="display: none;">管理员后台</a>
-            </div>
-            
-            <!-- 登录/用户信息区域（右上角） -->
-            <div class="auth-area">
-                <!-- 未登录显示登录入口 -->
-                <div id="auth-entrance" style="display: block;">
-                    <a href="login.html" class="auth-btn">登录/注册</a>
+            <div class="logo">飞翔的羊羊</div>
+            <nav>
+                <a href="index.html" class="active">首页</a>
+                <a href="message-board.html">留言板</a>
+                <a href="#">文章</a>
+                <a href="#">关于</a>
+                <!-- 未登录状态 -->
+                <div id="unauth-area" class="user-info">
+                    <button class="auth-btn" id="login-btn">登录</button>
                 </div>
-                <!-- 登录后显示用户信息 -->
-                <div id="user-area" class="user-info" style="display: none;">
-                    <span>👤 <span id="username">用户名</span></span>
-                    <span>积分：<span id="points">0</span> ✨</span>
-                    <button class="sign-btn" id="sign-btn">今日签到</button>
-                    <button class="auth-btn" id="logout-btn">退出</button>
+                <!-- 已登录状态（默认隐藏） -->
+                <div id="auth-area" class="user-info hidden">
+                    <img src="" alt="用户头像" class="user-avatar" id="user-avatar">
+                    <span id="user-email"></span>
+                    <button class="auth-btn" id="logout-btn">退出登录</button>
                 </div>
-            </div>
+            </nav>
         </div>
-        </ul>
     </header>
 
-    <!-- 主体内容 -->
-    <div class="container" id="main-container">
-        <!-- 个人介绍 -->
-        <section class="profile" id="profile">
-            <img src="http://q1.qlogo.cn/g?b=qq&nk=2777136265&s=100" alt="个人头像" class="profile-img" id="user-avatar">
-            <div class="profile-info">
-                <h2>飞翔的羊羊 | 生态学专业</h2>
-                <p>👋 大家好！我是一名大二学生，热爱学习和分享，希望通过这个主页和大家交流学习心得，共享优质学习资源～</p>
-                <p>📚 擅长领域：无</p>
-                <p>🎯 近期目标：无</p>
-                <div>
-                    <span class="tag">生态专业</span>
-                    <span class="tag">学习分享</span>
-                    <span class="tag">前端开发</span>
-                    <span class="tag">算法刷题</span>
-                </div>
+    <div class="main-content">
+        <div class="left-section">
+            <div class="card">
+                <h2>欢迎来到我的主页</h2>
+                <p>这里是飞翔的羊羊的个人学习分享平台，记录成长点滴，分享技术心得～</p>
+                <a href="message-board.html" class="message-entry">
+                    <<i class="fa fa-comments-o mr-1"></</i> 前往留言板
+                </a>
             </div>
-        </section>
-
-        <!-- 学习资料分享 -->
-        <section class="materials" id="materials">
-            <h2>📖 学习资料分享</h2>
-            <div class="material-list">
-                <div class="material-card">
-                    <h3>学习资料分享</h3>
-                    <p>包含生物化学、动物学等核心知识点，附刷题思路和例题解析</p>
-                    <a href="https://pan.baidu.com/s/1739wCLzmLSAdvMsW3vzdPw?pwd=5xq9" target="_blank">下载PDF</a>
-                </div>
-                <div class="material-card">
-                    <h3>Python入门到实战教程</h3>
-                    <p>适合零基础，涵盖基础语法、爬虫、数据分析、小项目实战（附源码）</p>
-                    <a href="#" target="_blank">查看教程</a>
-                </div>
-                <div class="material-card">
-                    <h3>前端面试高频考点整理</h3>
-                    <p>HTML/CSS/JS核心考点、浏览器原理、框架面试题，附参考答案</p>
-                    <a href="#" target="_blank">获取资料</a>
-                </div>
-                <div class="material-card">
-                    <h3>蓝桥杯历年真题及解析</h3>
-                    <p>近5年蓝桥杯省赛/国赛真题，包含C++/Python两种解法，附评分标准</p>
-                    <a href="#" target="_blank">下载真题</a>
-                </div>
+            <div class="card">
+                <h3>近期动态</h3>
+                <ul>
+                    <li>✅ 完成留言板功能开发</li>
+                    <li>✅ 集成Supabase用户认证</li>
+                    <li>🔧 优化页面响应式布局</li>
+                </ul>
             </div>
-        </section>
-
-        <!-- 联系方式 - 修正HTML标签错误 -->
-        <section class="contact" id="contact">
-            <h2>📞 联系方式</h2>
-            <div class="contact-info">
-                <div class="contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <span>邮箱：2777136265@qq.com</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-wechat"></i>
-                    <span>微信：fly_sheep1（备注：学习交流）</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-github"></i>
-                    <span>GitHub：github.com/你的用户名</span>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-qq"></i>
-                    <span>QQ：2777136265</span>
-                </div>
+        </div>
+        <div class="right-section">
+            <div class="card">
+                <h3>个人信息</h3>
+                <p><<i class="fa fa-user mr-1"></</i> 飞翔的羊羊</p>
+                <p><<i class="fa fa-envelope mr-1"></</i> 留言板专属交流</p>
+                <p><<i class="fa fa-star mr-1"></</i> 热爱学习，乐于分享</p>
             </div>
-        </section>
+            <div class="card">
+                <h3>快速功能</h3>
+                <a href="#" class="message-entry" style="display: block; text-align: center; margin: 10px 0;">
+                    <<i class="fa fa-sign-in mr-1"></</i> 积分签到
+                </a>
+            </div>
+        </div>
     </div>
 
-    <!-- 页脚 -->
     <footer>
-        <p>© 2025 我的个人学习主页 | 大学生学习分享平台</p>
-        <p style="margin-top: 0.5rem; font-size: 0.9rem;">愿我们都在学习的路上不断进步～</p>
+        <p>© 2025 飞翔的羊羊 - 个人主页 | 保留所有权利</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ==================== Supabase核心配置（替换为你的！）====================
-        const SUPABASE_URL = 'https://neflfdfpzyjookonmleo.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZmxmZGZwenlqb29rb25tbGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzQxMTUsImV4cCI6MjA4MDk1MDExNX0.z944F1VmJO9ro-1iDtB9HD_1NVThzz7mzqSX0IQqj68';
-        
-        // 初始化Supabase客户端
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Supabase初始化
+        const SUPABASE_URL = '你的Supabase项目URL';
+        const SUPABASE_KEY = '你的Supabase匿名密钥';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 页面加载后执行
-        window.onload = async function() {
-            await checkLoginStatus(); // 检查登录状态
-            bindLogoutEvent(); // 绑定退出登录事件
-            bindSignEvent(); // 绑定签到事件
-        };
+        // DOM元素
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const unauthArea = document.getElementById('unauth-area');
+        const authArea = document.getElementById('auth-area');
+        const userAvatar = document.getElementById('user-avatar');
+        const userEmail = document.getElementById('user-email');
 
-        // ==================== 检查登录状态 ====================
-        async function checkLoginStatus() {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                const authEntrance = document.getElementById('auth-entrance');
-                const userArea = document.getElementById('user-area');
-                const signBtn = document.getElementById('sign-btn');
-
+        // 初始化页面
+        async function init() {
+            // 监听登录状态变化
+            supabase.auth.onAuthStateChange((_event, session) => {
                 if (session) {
-                    // 已登录：显示用户区域，隐藏登录入口
-                    authEntrance.style.display = 'none';
-                    userArea.style.display = 'flex';
-                    signBtn.style.display = 'block';
-
-                    // 获取用户信息并渲染
-                    await renderUserInfo(session.user.id);
-                    // 检查今日是否已签到
-                    await checkSignStatus();
+                    // 已登录
+                    const user = session.user;
+                    unauthArea.classList.add('hidden');
+                    authArea.classList.remove('hidden');
+                    userEmail.textContent = user.email;
+                    // 生成QQ头像（假设邮箱前缀为QQ号码，可根据实际调整）
+                    const qqNumber = user.email.split('@')[0];
+                    const avatarUrl = `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640`;
+                    userAvatar.src = avatarUrl;
+                    userAvatar.alt = `用户${qqNumber}的头像`;
                 } else {
-                    // 未登录：显示登录入口，隐藏用户区域
-                    authEntrance.style.display = 'block';
-                    userArea.style.display = 'none';
+                    // 未登录
+                    unauthArea.classList.remove('hidden');
+                    authArea.classList.add('hidden');
+                    userAvatar.src = '';
+                    userEmail.textContent = '';
                 }
-            } catch (err) {
-                console.error('检查登录状态失败：', err);
-                alert('登录状态检测失败，请刷新页面');
+            });
+
+            // 检查初始登录状态
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                const user = session.user;
+                unauthArea.classList.add('hidden');
+                authArea.classList.remove('hidden');
+                userEmail.textContent = user.email;
+                const qqNumber = user.email.split('@')[0];
+                const avatarUrl = `https://q1.qlogo.cn/g?b=qq&nk=${qqNumber}&s=640`;
+                userAvatar.src = avatarUrl;
             }
         }
 
-        // ==================== 渲染用户信息 ====================
-        async function renderUserInfo(userId) {
-            try {
-                const { data: userProfile, error } = await supabase
-                    .from('users')
-                    .select('username, points')
-                    .eq('id', userId)
-                    .single();
+        // 登录按钮事件
+        loginBtn.addEventListener('click', async () => {
+            const email = prompt('请输入你的QQ邮箱获取登录验证码：');
+            if (!email) return;
+            const { error } = await supabase.auth.signInWithOtp({
+                email,
+                options: { emailRedirectTo: window.location.href }
+            });
+            if (error) alert(`登录请求失败：${error.message}`);
+            else alert('验证码已发送至你的邮箱，请查收并验证');
+        });
 
-                if (error) throw new Error('未查询到用户信息');
+        // 退出登录按钮事件
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            alert('退出登录成功');
+        });
 
-                // 更新页面上的用户名和积分
-                document.getElementById('username').textContent = userProfile.username;
-                document.getElementById('points').textContent = userProfile.points || 0;
-            } catch (err) {
-                console.error('渲染用户信息失败：', err);
-                document.getElementById('username').textContent = '未知用户';
-            }
-        }
-
-        // ==================== 检查今日签到状态 ====================
-        async function checkSignStatus() {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) return;
-
-                const today = new Date().toISOString().split('T')[0]; // 今日日期（YYYY-MM-DD）
-                const signBtn = document.getElementById('sign-btn');
-
-                // 查询用户今日签到记录（需先创建sign_records表）
-                const { data: signRecord } = await supabase
-                    .from('sign_records')
-                    .select('id')
-                    .eq('user_id', session.user.id)
-                    .eq('sign_date', today)
-                    .single();
-
-                if (signRecord) {
-                    // 已签到：禁用签到按钮
-                    signBtn.textContent = '今日已签到';
-                    signBtn.classList.add('disabled');
-                    signBtn.disabled = true;
-                } else {
-                    // 未签到：启用签到按钮
-                    signBtn.textContent = '今日签到';
-                    signBtn.classList.remove('disabled');
-                    signBtn.disabled = false;
-                }
-            } catch (err) {
-                // 无签到记录表或未签到，默认显示可签到
-                const signBtn = document.getElementById('sign-btn');
-                signBtn.textContent = '今日签到';
-                signBtn.classList.remove('disabled');
-                signBtn.disabled = false;
-            }
-        }
-
-        // ==================== 绑定退出登录事件 ====================
-        function bindLogoutEvent() {
-            const logoutBtn = document.getElementById('logout-btn');
-            logoutBtn.onclick = async function() {
-                try {
-                    await supabase.auth.signOut();
-                    alert('退出登录成功！');
-                    window.location.reload(); // 刷新页面
-                } catch (err) {
-                    alert('退出登录失败：' + err.message);
-                }
-            };
-        }
-
-        // ==================== 绑定签到事件 ====================
-        async function bindSignEvent() {
-            const signBtn = document.getElementById('sign-btn');
-            signBtn.onclick = async function() {
-                try {
-                    const { data: { session } } = await supabase.auth.getSession();
-                    if (!session) {
-                        alert('请先登录！');
-                        window.location.href = 'login.html';
-                        return;
-                    }
-
-                    // 禁用签到按钮防止重复点击
-                    signBtn.disabled = true;
-                    signBtn.textContent = '签到中...';
-
-                    // 1. 获取当前用户积分
-                    const { data: userProfile } = await supabase
-                        .from('users')
-                        .select('points')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    const currentPoints = userProfile.points || 0;
-                    const addPoints = 10; // 签到获得10积分
-                    const newPoints = currentPoints + addPoints;
-
-                    // 2. 更新用户积分
-                    const { error: updateError } = await supabase
-                        .from('users')
-                        .update({ points: newPoints })
-                        .eq('id', session.user.id);
-
-                    if (updateError) {
-                     console.error('积分更新错误详情：', updateError);
-                     throw new Error(`积分更新失败：${updateError.message}`);
-                    }
-
-                    // 3. 记录签到历史（可选）
-                    const today = new Date().toISOString().split('T')[0];
-                    await supabase.from('sign_records').insert([{
-                        user_id: session.user.id,
-                        sign_date: today,
-                        points: addPoints
-                    }]);
-
-                    // 4. 更新页面积分和签到状态
-                    document.getElementById('points').textContent = newPoints;
-                    signBtn.textContent = '今日已签到';
-                    signBtn.classList.add('disabled');
-                    alert(`签到成功！获得${addPoints}积分，当前积分：${newPoints}`);
-
-                } catch (err) {
-                    alert('签到失败：' + err.message);
-                    signBtn.textContent = '今日签到';
-                    signBtn.disabled = false;
-                }
-            };
-        }
+        // 初始化
+        init();
     </script>
 </body>
 </html>
