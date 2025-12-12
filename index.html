@@ -383,6 +383,9 @@
         // 初始化Supabase客户端
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // 全局当前用户（与留言板逻辑保持一致）
+        let currentUser = null;
+
         // 页面加载后执行
         window.onload = async function() {
             await checkLoginStatus(); // 检查登录状态
@@ -394,18 +397,20 @@
         async function checkLoginStatus() {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
+                currentUser = session?.user || null;
+
                 const authEntrance = document.getElementById('auth-entrance');
                 const userArea = document.getElementById('user-area');
                 const signBtn = document.getElementById('sign-btn');
 
-                if (session) {
+                if (currentUser) {
                     // 已登录：显示用户区域，隐藏登录入口
                     authEntrance.style.display = 'none';
                     userArea.style.display = 'flex';
                     signBtn.style.display = 'block';
 
                     // 获取用户信息并渲染（含头像）
-                    await renderUserInfo(session.user.id, session.user.email);
+                    await renderUserInfo(currentUser.id, currentUser.email);
                     // 检查今日是否已签到
                     await checkSignStatus();
                 } else {
@@ -431,7 +436,7 @@
                 if (error) throw new Error('未查询到用户信息');
 
                 // 更新页面上的用户名和积分
-                document.getElementById('username').textContent = userProfile.username;
+                document.getElementById('username').textContent = userProfile.username || '未知用户';
                 document.getElementById('points').textContent = userProfile.points || 0;
 
                 // 新增：获取QQ头像（从邮箱提取QQ号）
@@ -447,14 +452,14 @@
             } catch (err) {
                 console.error('渲染用户信息失败：', err);
                 document.getElementById('username').textContent = '未知用户';
+                document.getElementById('points').textContent = '0';
             }
         }
 
         // ==================== 检查今日签到状态 ====================
         async function checkSignStatus() {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) return;
+                if (!currentUser) return;
 
                 const today = new Date().toISOString().split('T')[0]; // 今日日期（YYYY-MM-DD）
                 const signBtn = document.getElementById('sign-btn');
@@ -463,7 +468,7 @@
                 const { data: signRecord } = await supabase
                     .from('sign_records')
                     .select('id')
-                    .eq('user_id', session.user.id)
+                    .eq('user_id', currentUser.id)
                     .eq('sign_date', today)
                     .single();
 
@@ -506,8 +511,7 @@
             const signBtn = document.getElementById('sign-btn');
             signBtn.onclick = async function() {
                 try {
-                    const { data: { session } } = await supabase.auth.getSession();
-                    if (!session) {
+                    if (!currentUser) {
                         alert('请先登录！');
                         window.location.href = 'login.html';
                         return;
@@ -517,43 +521,67 @@
                     signBtn.disabled = true;
                     signBtn.textContent = '签到中...';
 
-                    // 1. 获取当前用户积分
-                    const { data: userProfile } = await supabase
-                        .from('users')
-                        .select('points')
-                        .eq('id', session.user.id)
-                        .single();
-
-                    const currentPoints = userProfile.points || 0;
-                    const addPoints = 10; // 签到获得10积分
-                    const newPoints = currentPoints + addPoints;
-
-                    // 2. 更新用户积分
-                    const { error: updateError } = await supabase
-                        .from('users')
-                        .update({ points: newPoints })
-                        .eq('id', session.user.id);
-
-                    if (updateError) {
-                     console.error('积分更新错误详情：', updateError);
-                     throw new Error(`积分更新失败：${updateError.message}`);
+                    // 使用与留言板相同的签到逻辑
+                    const today = new Date().toISOString().split('T')[0];
+                    
+                    // 检查是否已经签到
+                    const { data: existingSign } = await supabase
+                        .from('sign_records')
+                        .select('id')
+                        .eq('user_id', currentUser.id)
+                        .eq('sign_date', today)
+                        .maybeSingle();
+                        
+                    if (existingSign) {
+                        alert('今日已签到！');
+                        signBtn.textContent = '今日已签到';
+                        signBtn.classList.add('disabled');
+                        return;
                     }
 
-                    // 3. 记录签到历史（可选）
-                    const today = new Date().toISOString().split('T')[0];
-                    await supabase.from('sign_records').insert([{
-                        user_id: session.user.id,
-                        sign_date: today,
-                        points: addPoints
-                    }]);
+                    // 获取当前积分
+                    const { data: userData, error: userError } = await supabase
+                        .from('users')
+                        .select('points')
+                        .eq('id', currentUser.id)
+                        .single();
+                        
+                    if (userError) throw userError;
 
-                    // 4. 更新页面积分和签到状态
+                    const currentPoints = userData.points || 0;
+                    const addPoints = 10;
+                    const newPoints = currentPoints + addPoints;
+
+                    // 更新积分（修复了 updated_at 字段问题）
+                    const { error: updateError } = await supabase
+                        .from('users')
+                        .update({ 
+                            points: newPoints,
+                            updated_at: new Date() // 明确设置 updated_at 字段
+                        })
+                        .eq('id', currentUser.id);
+
+                    if (updateError) throw updateError;
+
+                    // 记录签到
+                    const { error: insertError } = await supabase
+                        .from('sign_records')
+                        .insert({
+                            user_id: currentUser.id,
+                            sign_date: today,
+                            points: addPoints
+                        });
+
+                    if (insertError) throw insertError;
+
+                    // 更新界面
                     document.getElementById('points').textContent = newPoints;
                     signBtn.textContent = '今日已签到';
                     signBtn.classList.add('disabled');
-                    alert(`签到成功！获得${addPoints}积分，当前积分：${newPoints}`);
+                    alert(`签到成功！获得 ${addPoints} 积分，当前积分：${newPoints}`);
 
                 } catch (err) {
+                    console.error('签到失败:', err);
                     alert('签到失败：' + err.message);
                     signBtn.textContent = '今日签到';
                     signBtn.disabled = false;
